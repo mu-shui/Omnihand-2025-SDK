@@ -86,8 +86,9 @@ class MixCtrl:
 
 class AgibotHandO10:  
     @staticmethod
-    def create_hand(device_id: int = 1, 
-                   hand_type: EHandType = EHandType.LEFT) -> 'AgibotHandO10': ...
+    def create_hand(hand_type: EHandType = EHandType.LEFT,
+                   device_id: int = 1, canfd_id: int = 0,
+                   channel_id: int = 0) -> 'AgibotHandO10': ...
     
     def __init__(self) -> None: ...
     

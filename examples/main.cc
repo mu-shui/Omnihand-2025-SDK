@@ -56,7 +56,7 @@ void GetHandInfo(std::unique_ptr<AgibotHandO10>& hand) {
 
 void positionControlDemo() {
   try {
-    auto hand = AgibotHandO10::createHand(1, 0, EHandType::eLeft);
+    auto hand = AgibotHandO10::createHand(EHandType::eLeft, 1, 0);
 
     std::thread control_thread(ControlHand, std::ref(hand));
     std::thread info_thread(GetHandInfo, std::ref(hand));

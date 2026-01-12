@@ -34,11 +34,16 @@ class AGIBOT_EXPORT AgibotHandO10 {
  public:
   /**
    * @brief 工厂方法，创建具体的灵巧手实例
+   * @param hand_type 手型(左手/右手)
+   * @param device_id 设备Id
+   * @param canfd_id USB CANFD 适配器设备索引
+   * @param channel_id CAN通道索引 (默认为0，USBCANFD-200U有2个通道)
    */
   static std::unique_ptr<AgibotHandO10> createHand(
+      EHandType hand_type,
       unsigned char device_id,
       unsigned char canfd_id,
-      EHandType hand_type);
+      unsigned char channel_id = 0);
   /**
    * @brief 构造函数
    * @param device_id 设备Id

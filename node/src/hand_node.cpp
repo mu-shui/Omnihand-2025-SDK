@@ -12,7 +12,7 @@ namespace omnihand {
 
 OmniHandProNode::OmniHandProNode(uint8_t device_id, uint8_t canfd_id, EHandType hand_type) : Node("omnihand_node" + std::to_string(device_id)) {
   // agibot_hand_ = std::make_shared<AgibotHandO12>(device_id, canfd_id, hand_type);
-  agibot_hand_ = AgibotHandO10::createHand(device_id, canfd_id, hand_type);
+  agibot_hand_ = AgibotHandO10::createHand(hand_type, device_id, canfd_id);
 
   if (!agibot_hand_->Init()) {
     RCLCPP_ERROR(this->get_logger(), "Failed to initialize AgibotHandO10 device with ID %d", device_id);

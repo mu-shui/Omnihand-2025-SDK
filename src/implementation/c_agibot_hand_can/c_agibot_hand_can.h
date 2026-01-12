@@ -20,7 +20,7 @@ class AGIBOT_EXPORT AgibotHandCanO10 : public AgibotHandO10 {
   };
 
  public:
-  explicit AgibotHandCanO10(unsigned char canfd_id);
+  explicit AgibotHandCanO10(unsigned char canfd_id, unsigned char channel_id = 0);
 
   ~AgibotHandCanO10() override = default;
 

@@ -34,12 +34,13 @@ struct convert<AgibotHandO10::HardwareConf> {
 }  // namespace YAML
 
 std::unique_ptr<AgibotHandO10> AgibotHandO10::createHand(
+    EHandType hand_type,
     unsigned char device_id,
     unsigned char canfd_id,
-    EHandType hand_type) {
+    unsigned char channel_id) {
   std::unique_ptr<AgibotHandO10> hand;
 
-  hand = std::make_unique<AgibotHandCanO10>(canfd_id);
+  hand = std::make_unique<AgibotHandCanO10>(canfd_id, channel_id);
 
   hand->Reset(device_id, hand_type);
 

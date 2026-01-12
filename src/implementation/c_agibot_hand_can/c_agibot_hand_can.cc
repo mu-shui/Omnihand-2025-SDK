@@ -30,11 +30,11 @@ struct convert<AgibotHandCanO10::Options> {
 };
 }  // namespace YAML
 
-AgibotHandCanO10::AgibotHandCanO10(unsigned char canfd_id) {
+AgibotHandCanO10::AgibotHandCanO10(unsigned char canfd_id, unsigned char channel_id) {
   Options options;
 
   if (options.can_driver == "zlg") {
-    canfd_device_ = std::make_unique<ZlgUsbcanfdSDK>(canfd_id);
+    canfd_device_ = std::make_unique<ZlgUsbcanfdSDK>(canfd_id, channel_id);
   } else if (options.can_driver == "socket") {
     canfd_device_ = std::make_unique<CanBusDeviceSocketCan>();
   } else {

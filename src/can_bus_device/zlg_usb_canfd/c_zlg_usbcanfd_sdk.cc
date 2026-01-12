@@ -23,13 +23,14 @@ typedef unsigned int U32;
 #define msleep(ms) usleep((ms)*1000)
 
 #define DEVICE_TYPE_USBCANFD 33  // 设备类型
-#define DEVICE_INDEX 0
-#define CAN_MAX_CHANNELS 1  // 100mini的最大通道数量为1
-#define CHANNEL_INDEX 0
 #define RX_WAIT_TIME 100
 #define RX_BUFF_SIZE 1000
 
-ZlgUsbcanfdSDK::ZlgUsbcanfdSDK(unsigned char canfd_id) : canfd_id_(canfd_id) {
+std::mutex ZlgUsbcanfdSDK::device_mutex_;
+std::map<unsigned char, int> ZlgUsbcanfdSDK::device_ref_count_;
+
+ZlgUsbcanfdSDK::ZlgUsbcanfdSDK(unsigned char canfd_id, unsigned char channel_id)
+    : canfd_id_(canfd_id), channel_id_(channel_id) {
   if (ZlgUsbcanfdSDK::OpenDevice() == -1) {
     return;
   }
@@ -53,82 +54,98 @@ bool ZlgUsbcanfdSDK::IsInit() {
 }
 
 int ZlgUsbcanfdSDK::OpenDevice() {
-  /*打开设备*/
-  if (VCI_OpenDevice(DEVICE_TYPE_USBCANFD, canfd_id_, 0)) {
-    std::cout << "[INFO]: Open device usbcanfd successfully." << std::endl;
+  std::lock_guard<std::mutex> lock(device_mutex_);
+
+  bool device_already_open = (device_ref_count_.count(canfd_id_) > 0 && device_ref_count_[canfd_id_] > 0);
+  if (!device_already_open) { /* first */
+    if (VCI_OpenDevice(DEVICE_TYPE_USBCANFD, canfd_id_, 0)) {
+      std::cout << "[INFO]: Open device " << (int)canfd_id_ << " usbcanfd successfully." << std::endl;
+      device_ref_count_[canfd_id_] = 0;
+    } else {
+      std::cout << "[ERROR]: Open device " << (int)canfd_id_ << " usbcanfd failed!" << std::endl;
+      return -1;
+    }
   } else {
-    std::cout << "[ERROR]: Open device usbcanfd failed!" << std::endl;
+    std::cout << "[INFO]: Device " << (int)canfd_id_ << " already open, reusing." << std::endl;
+  }
+
+  /*初始化并启动指定通道*/
+  ZCAN_INIT init;  // TODO 初始化数据根据zcanpro的波特率计算器得出
+  init.clk = 60000000;
+  init.mode = 0;
+
+  init.aset.tseg1 = 46;  // 仲裁域 1M
+  init.aset.tseg2 = 11;
+  init.aset.sjw = 3;
+  init.aset.smp = 0;
+  init.aset.brp = 0;
+
+  init.dset.tseg1 = 7;  // 数据域 5M
+  init.dset.tseg2 = 2;
+  init.dset.sjw = 1;
+  init.dset.smp = 0;
+  init.dset.brp = 0;
+
+  /*初始化通道*/
+  if (VCI_InitCAN(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_, &init)) {
+    std::cout << "[INFO]: Init canfd device " << (int)canfd_id_ << " channel " << (int)channel_id_ << " successfully." << std::endl;
+  } else {
+    std::cout << "[ERROR]: Init canfd device " << (int)canfd_id_ << " channel " << (int)channel_id_ << " failed!" << std::endl;
     return -1;
   }
 
-  /*初始化并启动通道*/
-  for (int i = 0; i < CAN_MAX_CHANNELS; i++) {
-    ZCAN_INIT init;  // TODO 初始化数据根据zcanpro的波特率计算器得出
-    init.clk = 60000000;
-    init.mode = 0;
-
-    init.aset.tseg1 = 46;  // 仲裁域 1M
-    init.aset.tseg2 = 11;
-    init.aset.sjw = 3;
-    init.aset.smp = 0;
-    init.aset.brp = 0;
-
-    init.dset.tseg1 = 7;  // 数据域 5M
-    init.dset.tseg2 = 2;
-    init.dset.sjw = 1;
-    init.dset.smp = 0;
-    init.dset.brp = 0;
-
-    /*初始化通道*/
-    if (VCI_InitCAN(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, i, &init)) {
-      std::cout << "[INFO]: Init canfd successfully." << std::endl;
-    } else {
-      std::cout << "[ERROR]: Init canfd failed!" << std::endl;
-      return -1;
-    }
-
-    // TODO 终端电阻是否要设置
-    /*终端电阻*/
-    U32 on = 1;
-    if (!VCI_SetReference(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, i, CMD_CAN_TRES, &on)) {
-      std::cout << "[ERROR: CMD_CAN_TRES failed!" << std::endl;
-    }
-
-    // TODO 合并接收是否要设置
-    /*合并接收*/
-    int isMerge = 0;
-    if (i == 0) {
-      if (!VCI_SetReference(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, i, ZCAN_CMD_SET_CHNL_RECV_MERGE, &isMerge)) {
-        std::cout << "[ERROR]: ZCAN_CMD_SET_CHNL_RECV_MERGE failed!" << std::endl;
-      }
-    }
-
-    /*启动通道*/
-    if (VCI_StartCAN(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, i)) {
-      std::cout << "[INFO]: Start canfd successfully." << std::endl;
-    } else {
-      std::cout << "[ERROR]: Start canfd failed!" << std::endl;
-      return -1;
-    }
+  /*终端电阻*/
+  U32 on = 1;
+  if (!VCI_SetReference(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_, CMD_CAN_TRES, &on)) {
+    std::cout << "[ERROR]: CMD_CAN_TRES failed for device " << (int)canfd_id_ << " channel " << (int)channel_id_ << std::endl;
   }
+
+  /*合并接收*/
+  int isMerge = 0;
+  if (!VCI_SetReference(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_, ZCAN_CMD_SET_CHNL_RECV_MERGE, &isMerge)) {
+    std::cout << "[ERROR]: ZCAN_CMD_SET_CHNL_RECV_MERGE failed!" << std::endl;
+  }
+
+  /*启动通道*/
+  if (VCI_StartCAN(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_)) {
+    std::cout << "[INFO]: Start canfd device " << (int)canfd_id_ << " channel " << (int)channel_id_ << " successfully." << std::endl;
+  } else {
+    std::cout << "[ERROR]: Start canfd device " << (int)canfd_id_ << " channel " << (int)channel_id_ << " failed!" << std::endl;
+    return -1;
+  }
+
+  /*增加引用计数*/
+  device_ref_count_[canfd_id_]++;
+  std::cout << "[INFO]: Device " << (int)canfd_id_ << " ref count: " << device_ref_count_[canfd_id_] << std::endl;
 
   return 0;
 }
 
 int ZlgUsbcanfdSDK::CloseDevice() {
-  for (int i = 0; i < CAN_MAX_CHANNELS; i++) {
-    if (VCI_ResetCAN(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, i)) {
-      std::cout << "[INFO]: Reset canfd successfully." << std::endl;
-    } else {
-      std::cout << "[ERROR]: Reset canfd failed!" << std::endl;
-    }
+  std::lock_guard<std::mutex> lock(device_mutex_);
+
+  /*复位通道*/
+  if (VCI_ResetCAN(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_)) {
+    std::cout << "[INFO]: Reset canfd device " << (int)canfd_id_ << " channel " << (int)channel_id_ << " successfully." << std::endl;
+  } else {
+    std::cout << "[ERROR]: Reset canfd device " << (int)canfd_id_ << " channel " << (int)channel_id_ << " failed!" << std::endl;
   }
 
-  if (VCI_CloseDevice(DEVICE_TYPE_USBCANFD, DEVICE_INDEX)) {
-    std::cout << "[INFO]: Close canfd successfully." << std::endl;
-  } else {
-    std::cout << "[ERROR]: Close canfd failed!" << std::endl;
-    return -1;
+  /*减少引用计数*/
+  if (device_ref_count_.count(canfd_id_) > 0) {
+    device_ref_count_[canfd_id_]--;
+    std::cout << "[INFO]: Device " << (int)canfd_id_ << " ref count: " << device_ref_count_[canfd_id_] << std::endl;
+
+    /*只有当引用计数为0时才关闭设备*/
+    if (device_ref_count_[canfd_id_] <= 0) {
+      if (VCI_CloseDevice(DEVICE_TYPE_USBCANFD, canfd_id_)) {
+        std::cout << "[INFO]: Close canfd device " << (int)canfd_id_ << " successfully." << std::endl;
+        device_ref_count_.erase(canfd_id_);
+      } else {
+        std::cout << "[ERROR]: Close canfd device " << (int)canfd_id_ << " failed!" << std::endl;
+        return -1;
+      }
+    }
   }
 
   return 0;
@@ -139,7 +156,7 @@ void ZlgUsbcanfdSDK::RecvFrame() {
 
   while (!IsInterruptRequested()) {
     memset(canfd_data, 0, sizeof(canfd_data));
-    int recvCount = VCI_ReceiveFD(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, 0, canfd_data, RX_BUFF_SIZE, RX_WAIT_TIME);
+    int recvCount = VCI_ReceiveFD(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_, canfd_data, RX_BUFF_SIZE, RX_WAIT_TIME);
     for (int i = 0; i < recvCount; i++) {
       CanfdFrame rep{};
       rep.can_id_ = canfd_data[i].hdr.id;
@@ -197,13 +214,13 @@ int ZlgUsbcanfdSDK::SendFrame(unsigned int id, unsigned char* data, unsigned cha
   // canfd_msg.hdr.inf.echo  = 1;   // 发送回显
 
   canfd_msg.hdr.id = id;
-  canfd_msg.hdr.chn = 0;
+  canfd_msg.hdr.chn = channel_id_;
   canfd_msg.hdr.len = length;  // 数据长度
 
   // TODO 注意非法长度
   memcpy(canfd_msg.dat, data, length);
 
-  int sndRet = VCI_TransmitFD(DEVICE_TYPE_USBCANFD, DEVICE_INDEX, 0, &canfd_msg, 1);
+  int sndRet = VCI_TransmitFD(DEVICE_TYPE_USBCANFD, canfd_id_, channel_id_, &canfd_msg, 1);
   if (sndRet == 1) {
     return 0;
   } else {
