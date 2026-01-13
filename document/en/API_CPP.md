@@ -147,29 +147,45 @@ struct CommuParams {
 
 ## AgibotHandO10 Class and Function Interface
 
-### Create a Hand Instance
+### Device Discovery and Creation (Static Methods)
 
 ```cpp
 /**
- * @brief Creates a dexterous hand instance.
- * @param device_id The device ID, defaults to 1.
- * @param hand_type The hand type (left/right), defaults to left hand.
- * @return A shared pointer to the dexterous hand object.
+ * @brief Finds canfd_id by serial number.
+ * @param serial_number Device serial number (supports partial matching).
+ * @return canfd_id, returns -1 if not found.
  */
-static std::shared_ptr<AgibotHandO10> CreateHand(
-    unsigned char device_id = 1,
-    unsigned char canfd_id = 0,
-    EHandType hand_type = EHandType::eLeft);
+static int findCanfdIdBySerialNumber(const std::string& serial_number);
+
+/**
+ * @brief Batch find canfd_ids by serial numbers (scans only once, more efficient).
+ * @param serial_numbers List of serial numbers.
+ * @return List of canfd_ids, -1 for not found positions.
+ */
+static std::vector<int> findCanfdIdsBySerialNumbers(const std::vector<std::string>& serial_numbers);
+
+/**
+ * @brief Factory method to create a dexterous hand instance.
+ * @param hand_type The hand type (left/right).
+ * @param device_id The device ID, defaults to 1, determined by the firmware of hand device.
+ * @param canfd_id USB CANFD adapter device index, defaults to 0.
+ * @param channel_id CAN channel index, defaults to 0 (USBCANFD-200U has 2 channels: 0 and 1).
+ * @return A unique pointer to the dexterous hand object.
+ */
+static std::unique_ptr<AgibotHandO10> createHand(
+    EHandType hand_type,
+    unsigned char device_id,
+    unsigned char canfd_id,
+    unsigned char channel_id = 0);
 ```
 
 ### Constructor
 
 ```cpp
 /**
- * @brief Constructor.
- * @param device_id The device ID, defaults to 1.
+ * @brief Default constructor.
  */
-explicit AgibotHandO10();
+AgibotHandO10() = default;
 ```
 
 ### Device Information
@@ -177,16 +193,16 @@ explicit AgibotHandO10();
 ```cpp
 /**
  * @brief Gets vendor information.
- * @return A long string containing vendor info, including product model, serial number, hardware version, software version, etc.
+ * @return VendorInfo structure containing product model, serial number, hardware version, software version, etc.
  */
-std::string GetVendorInfo();
+VendorInfo GetVendorInfo();
 
 /**
  * @brief Gets device information.
- * @return A long string containing the device's operational status information.
+ * @return DeviceInfo structure containing device ID and communication parameters.
  * @note This interface is not supported for serial port communication.
  */
-std::string GetDeviceInfo();
+DeviceInfo GetDeviceInfo();
 
 /**
  * @brief Sets the device ID.
@@ -218,7 +234,7 @@ short GetJointMotorPosi(unsigned char joint_motor_index);
  * @param vec_posi A vector of target positions for all joints, must have a length of 10.
  * @note Be sure to provide position data for all 10 joint motors.
  */
-void SetAllJointMotorPosi(std::vector<short> vec_posi);
+void SetAllJointMotorPosi(const std::vector<short>& vec_posi);
 
 /**
  * @brief Gets the positions of all joint motors in batch.
@@ -231,38 +247,38 @@ std::vector<short> GetAllJointMotorPosi();
 
 #### Joint Angle I/O Order (Right Hand)
 
-| Index | Joint Name         | Min Angle (rad)      | Max Angle (rad)     | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
-| ----- | ------------------ | -------------------- | ------------------- | ------------- | ------------- | ---------------------- |
-| 1     | R_thumb_roll_joint | -0.17453292519943295 | 0.8726646259971648  | -10           | 50            | 0.164                  |
-| 2     | R_thumb_abad_joint | -1.7453292519943295  | 0                   | -100          | 0             | 0.164                  |
-| 3     | R_thumb_mcp_joint  | 0                    | 0.8552113334772214  | 0             | 49            | 0.308                  |
-| 4     | R_index_abad_joint | -0.20943951023931953 | 0                   | -12           | 0             | 0.164                  |
-| 5     | R_index_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 6     | R_middle_pip_joint | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 7     | R_ring_abad_joint  | 0                    | 0.17453292519943295 | 0             | 10            | 0.164                  |
-| 8     | R_ring_pip_joint   | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 9     | R_pinky_abad_joint | 0                    | 0.17453292519943295 | 0             | 10            | 0.164                  |
-| 10    | R_pinky_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
+| Index | Joint Name         | Min Angle (rad) | Max Angle (rad) | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
+| ----- | ------------------ | --------------- | --------------- | ------------- | ------------- | ---------------------- |
+| 1     | R_thumb_roll_joint | -0.03           | 1.12            | -2            | 64            | 0.164                  |
+| 2     | R_thumb_abad_joint | -1.64           | 0.05            | -94           | 3             | 0.164                  |
+| 3     | R_thumb_mcp_joint  | 0               | 0.84            | 0             | 48            | 0.308                  |
+| 4     | R_index_abad_joint | -0.16           | 0               | -9            | 0             | 0.164                  |
+| 5     | R_index_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 6     | R_middle_pip_joint | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 7     | R_ring_abad_joint  | 0               | 0.17            | 0             | 10            | 0.164                  |
+| 8     | R_ring_pip_joint   | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 9     | R_pinky_abad_joint | 0               | 0.19            | 0             | 11            | 0.164                  |
+| 10    | R_pinky_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
 
 #### Joint Angle I/O Order (Left Hand)
 
-| Index | Joint Name         | Min Angle (rad)      | Max Angle (rad)     | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
-| ----- | ------------------ | -------------------- | ------------------- | ------------- | ------------- | ---------------------- |
-| 1     | L_thumb_roll_joint | -0.8726646259971648  | 0.17453292519943295 | -50           | 10            | 0.164                  |
-| 2     | L_thumb_abad_joint | 0                    | 1.7453292519943295  | 0             | 100           | 0.164                  |
-| 3     | L_thumb_mcp_joint  | -0.8552113334772214  | 0                   | -49           | 0             | 0.308                  |
-| 4     | L_index_abad_joint | 0                    | 0.20943951023931953 | 0             | 12            | 0.164                  |
-| 5     | L_index_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 6     | L_middle_pip_joint | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 7     | L_ring_abad_joint  | -0.17453292519943295 | 0                   | -10           | 0             | 0.164                  |
-| 8     | L_ring_pip_joint   | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 9     | L_pinky_abad_joint | -0.17453292519943295 | 0                   | -10           | 0             | 0.164                  |
-| 10    | L_pinky_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
+| Index | Joint Name         | Min Angle (rad) | Max Angle (rad) | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
+| ----- | ------------------ | --------------- | --------------- | ------------- | ------------- | ---------------------- |
+| 1     | L_thumb_roll_joint | -1.12           | 0.03            | -64           | 2             | 0.164                  |
+| 2     | L_thumb_abad_joint | -0.05           | 1.64            | -3            | 94            | 0.164                  |
+| 3     | L_thumb_mcp_joint  | -0.84           | 0               | -48           | 0             | 0.308                  |
+| 4     | L_index_abad_joint | 0               | 0.16            | 0             | 9             | 0.164                  |
+| 5     | L_index_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 6     | L_middle_pip_joint | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 7     | L_ring_abad_joint  | -0.17           | 0               | -10           | 0             | 0.164                  |
+| 8     | L_ring_pip_joint   | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 9     | L_pinky_abad_joint | -0.19           | 0               | -11           | 0             | 0.164                  |
+| 10    | L_pinky_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
 
 ```cpp
 /**
  * @brief Sets the angles of all active joints.
- * @param angles A vector of joint angles (in radians), must have a length of 10.
+ * @param vec_angle A vector of joint angles (in radians), must have a length of 10.
  * @note For specific order and limits, please refer to the assets model files.
  */
 void SetAllActiveJointAngles(const std::vector<double>& angles);
@@ -280,6 +296,14 @@ std::vector<double> GetAllActiveJointAngles() const;
  * @note For specific order and limits, please refer to the assets model files.
  */
 std::vector<double> GetAllJointAngles() const;
+
+/**
+ * @brief Computes all joint angles (including passive) from active joint angles.
+ * @param active_joint_pos A vector of active joint angles (in radians), with a length of 10.
+ * @return A vector of all joint angles (in radians), including both active and passive joints.
+ * @note This function does not communicate with hardware; it only performs kinematics calculations.
+ */
+std::vector<double> GetAllJointPos(const std::vector<double>& active_joint_pos) const;
 ```
 
 ### Velocity Control
@@ -305,7 +329,7 @@ short GetJointMotorVelo(unsigned char joint_motor_index);
  * @brief Sets the velocities of all joint motors in batch.
  * @param vec_velo A vector of target velocities for all joints, must have a length of 10.
  */
-void SetAllJointMotorVelo(std::vector<short> vec_velo);
+void SetAllJointMotorVelo(const std::vector<short>& vec_velo);
 
 /**
  * @brief Gets the velocities of all joint motors in batch.
@@ -318,12 +342,28 @@ std::vector<short> GetAllJointMotorVelo();
 
 ```cpp
 /**
- * @brief Gets the tactile sensor data for a specified finger.
- * @param eFinger The finger enum value.
- * @return A list of tactile sensor data. The length is 16 for a finger sensor, and 25 for the palm/dorsum sensor.
+ * @brief Gets the tactile sensor data for a specified part.
+ * @param eFinger The finger/palm enum value.
+ * @return A list of tactile sensor data for the specified part.
+ * @note Data unit: 1g, Max value: 255g, Sampling frequency: 10Hz
+ *       - Fingers: Returns 16 data points, one per sensor point
+ *       - Palm: Returns 25 data points, one per 3 sensor points
+ *       - Dorsum: Returns 25 data points, one per 4 sensor points
  */
-std::vector<uint8_t> GetTactileSensorData(EFinger eFinger);
+std::vector<uint8_t> GetTactileSensorData(EFinger eFinger) const;
 ```
+
+**Sensor Specifications:**
+- Data unit: 1g
+- Max value: 255g
+- Sampling frequency: 10Hz
+
+**Return Data Description:**
+| Part | Data Length | Description |
+| ---- | ----------- | ----------- |
+| Fingers | 16 | One data point per sensor |
+| Palm | 25 | One data point per 3 sensors |
+| Dorsum | 25 | One data point per 4 sensors |
 
 The 16 sensors on a finger are arranged as follows:
 
@@ -352,7 +392,7 @@ EControlMode GetControlMode(unsigned char joint_motor_index);
  * @param vec_ctrl_mode A vector of control modes, must have a length of 10.
  * @note This interface is not supported for serial port communication.
  */
-void SetAllControlMode(std::vector<unsigned char> vec_ctrl_mode);
+void SetAllControlMode(const std::vector<unsigned char>& ctrl_modes);
 
 /**
  * @brief Gets the control modes of all joint motors in batch.
@@ -386,7 +426,7 @@ short GetCurrentThreshold(unsigned char joint_motor_index);
  * @param vec_current_threshold A vector of current thresholds, must have a length of 10.
  * @note This interface is not supported for serial port communication.
  */
-void SetAllCurrentThreshold(std::vector<short> vec_current_threshold);
+void SetAllCurrentThreshold(const std::vector<short>& current_thresholds);
 
 /**
  * @brief Gets the current thresholds of all joint motors in batch.
@@ -404,7 +444,7 @@ std::vector<short> GetAllCurrentThreshold();
  * @param vec_mix_ctrl A vector of mixed control parameters.
  * @note This interface is not supported for serial port communication.
  */
-void MixCtrlJointMotor(std::vector<MixCtrl> vec_mix_ctrl);
+void MixCtrlJointMotor(const std::vector<MixCtrl>& mix_ctrls);
 ```
 
 ### Error Handling

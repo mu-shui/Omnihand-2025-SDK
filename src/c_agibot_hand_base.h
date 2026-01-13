@@ -41,8 +41,8 @@ class AGIBOT_EXPORT AgibotHandO10 {
    */
   static std::unique_ptr<AgibotHandO10> createHand(
       EHandType hand_type,
-      unsigned char device_id,
-      unsigned char canfd_id,
+      unsigned char device_id = DEFAULT_DEVICE_ID,
+      unsigned char canfd_id = 0,
       unsigned char channel_id = 0);
 
   /**
@@ -72,63 +72,63 @@ class AGIBOT_EXPORT AgibotHandO10 {
   }
 
   // 基本信息接口
-  virtual VendorInfo GetVendorInfo() = 0;
-  virtual DeviceInfo GetDeviceInfo() = 0;
+  virtual VendorInfo GetVendorInfo() const = 0;
+  virtual DeviceInfo GetDeviceInfo() const = 0;
   virtual void SetDeviceId(unsigned char device_id) = 0;
 
   // 关节电机位置控制
   virtual void SetJointMotorPosi(unsigned char joint_motor_index, int16_t posi) = 0;
-  virtual int16_t GetJointMotorPosi(unsigned char joint_motor_index) = 0;
-  virtual void SetAllJointMotorPosi(std::vector<int16_t> vec_posi) = 0;
-  virtual std::vector<int16_t> GetAllJointMotorPosi() = 0;
+  virtual int16_t GetJointMotorPosi(unsigned char joint_motor_index) const = 0;
+  virtual void SetAllJointMotorPosi(const std::vector<int16_t>& vec_posi) = 0;
+  virtual std::vector<int16_t> GetAllJointMotorPosi() const = 0;
 
   // 关节角度控制
-  virtual void SetAllActiveJointAngles(std::vector<double> vec_angle) = 0;
-  virtual std::vector<double> GetAllActiveJointAngles() = 0;
-  virtual std::vector<double> GetAllJointAngles() = 0;
-  virtual std::vector<double> GetAllJointPos(const std::vector<double> &active_joint_pos) = 0;
+  virtual void SetAllActiveJointAngles(const std::vector<double>& angles) = 0;
+  virtual std::vector<double> GetAllActiveJointAngles() const = 0;
+  virtual std::vector<double> GetAllJointAngles() const = 0;
+  virtual std::vector<double> GetAllJointPos(const std::vector<double>& active_joint_pos) const = 0;
 
   // 速度控制
   virtual void SetJointMotorVelo(unsigned char joint_motor_index, int16_t velo) = 0;
-  virtual int16_t GetJointMotorVelo(unsigned char joint_motor_index) = 0;
-  virtual void SetAllJointMotorVelo(std::vector<int16_t> vec_velo) = 0;
-  virtual std::vector<int16_t> GetAllJointMotorVelo() = 0;
+  virtual int16_t GetJointMotorVelo(unsigned char joint_motor_index) const = 0;
+  virtual void SetAllJointMotorVelo(const std::vector<int16_t>& vec_velo) = 0;
+  virtual std::vector<int16_t> GetAllJointMotorVelo() const = 0;
 
   // 传感器接口
-  virtual std::vector<uint8_t> GetTactileSensorData(EFinger eFinger) = 0;
+  virtual std::vector<uint8_t> GetTactileSensorData(EFinger eFinger) const = 0;
 
   // 控制模式
   virtual void SetControlMode(unsigned char joint_motor_index, EControlMode mode) = 0;
-  virtual EControlMode GetControlMode(unsigned char joint_motor_index) = 0;
-  virtual void SetAllControlMode(std::vector<unsigned char> vec_ctrl_mode) = 0;
-  virtual std::vector<unsigned char> GetAllControlMode() = 0;
+  virtual EControlMode GetControlMode(unsigned char joint_motor_index) const = 0;
+  virtual void SetAllControlMode(const std::vector<unsigned char>& ctrl_modes) = 0;
+  virtual std::vector<unsigned char> GetAllControlMode() const = 0;
 
   // 电流控制
   virtual void SetCurrentThreshold(unsigned char joint_motor_index, int16_t current_threshold) = 0;
-  virtual int16_t GetCurrentThreshold(unsigned char joint_motor_index) = 0;
-  virtual void SetAllCurrentThreshold(std::vector<int16_t> vec_current_threshold) = 0;
-  virtual std::vector<int16_t> GetAllCurrentThreshold() = 0;
+  virtual int16_t GetCurrentThreshold(unsigned char joint_motor_index) const = 0;
+  virtual void SetAllCurrentThreshold(const std::vector<int16_t>& current_thresholds) = 0;
+  virtual std::vector<int16_t> GetAllCurrentThreshold() const = 0;
 
   // 混合控制
-  virtual void MixCtrlJointMotor(std::vector<MixCtrl> vec_mix_ctrl) = 0;
+  virtual void MixCtrlJointMotor(const std::vector<MixCtrl>& mix_ctrls) = 0;
 
   // 错误报告
-  virtual JointMotorErrorReport GetErrorReport(unsigned char joint_motor_index) = 0;
-  virtual std::vector<JointMotorErrorReport> GetAllErrorReport() = 0;
+  virtual JointMotorErrorReport GetErrorReport(unsigned char joint_motor_index) const = 0;
+  virtual std::vector<JointMotorErrorReport> GetAllErrorReport() const = 0;
 #if !DISABLE_FUNC
   virtual void SetErrorReportPeriod(unsigned char joint_motor_index, uint16_t period) = 0;
   virtual void SetAllErrorReportPeriod(std::vector<uint16_t> vec_period) = 0;
 #endif
   // 温度报告
-  virtual uint16_t GetTemperatureReport(unsigned char joint_motor_index) = 0;
-  virtual std::vector<uint16_t> GetAllTemperatureReport() = 0;
+  virtual uint16_t GetTemperatureReport(unsigned char joint_motor_index) const = 0;
+  virtual std::vector<uint16_t> GetAllTemperatureReport() const = 0;
 #if !DISABLE_FUNC
   virtual void SetTemperReportPeriod(unsigned char joint_motor_index, uint16_t period) = 0;
   virtual void SetAllTemperReportPeriod(std::vector<uint16_t> vec_period) = 0;
 #endif
   // 电流报告
-  virtual int16_t GetCurrentReport(unsigned char joint_motor_index) = 0;
-  virtual std::vector<uint16_t> GetAllCurrentReport() = 0;
+  virtual int16_t GetCurrentReport(unsigned char joint_motor_index) const = 0;
+  virtual std::vector<uint16_t> GetAllCurrentReport() const = 0;
 #if !DISABLE_FUNC
   virtual void SetCurrentReportPeriod(unsigned char joint_motor_index, uint16_t period) = 0;
   virtual void SetAllCurrentReportPeriod(std::vector<uint16_t> vec_period) = 0;

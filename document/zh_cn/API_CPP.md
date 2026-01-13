@@ -148,29 +148,44 @@ struct CommuParams {
 
 ## AgibotHandO10 类及其函数接口
 
-### 创建灵巧手实例
+### 设备查找与创建（静态方法）
 
 ```cpp
 /**
-    * @brief 创建灵巧手实例
-    * @param device_id 设备ID，默认为1
-    * @param hand_type 手类型，默认为左手
-    * @return 灵巧手对象指针
-    */
-static std::shared_ptr<AgibotHandO10> CreateHand(
-    unsigned char device_id = 1,
-    unsigned char canfd_id = 0,
-    EHandType hand_type = EHandType::eLeft);
+ * @brief 通过序列号查找canfd_id
+ * @param serial_number 设备序列号（支持部分匹配）
+ * @return canfd_id，找不到返回 -1
+ */
+static int findCanfdIdBySerialNumber(const std::string& serial_number);
+
+/**
+ * @brief 批量通过序列号查找canfd_id（只扫描一次，效率更高）
+ * @param serial_numbers 序列号列表
+ * @return canfd_id列表，找不到的位置返回 -1
+ */
+static std::vector<int> findCanfdIdsBySerialNumbers(const std::vector<std::string>& serial_numbers);
+/**
+ * @brief 工厂方法，创建具体的灵巧手实例
+ * @param hand_type 手型(左手/右手)
+ * @param device_id 设备ID，默认为1（作为can报文的一部分传入，由手的固件程序决定）
+ * @param canfd_id USB CANFD 适配器设备索引，默认为0
+ * @param channel_id CAN通道索引，默认为0（USBCANFD-200U有2个通道：0和1）
+ * @return 灵巧手对象智能指针
+ */
+static std::unique_ptr<AgibotHandO10> createHand(
+    EHandType hand_type,
+    unsigned char device_id,
+    unsigned char canfd_id,
+    unsigned char channel_id = 0);
 ```
 
 ### 构造函数
 
 ```cpp
 /**
- * @brief 构造函数
- * @param device_id 设备ID，默认为1
+ * @brief 默认构造函数
  */
-explicit AgibotHandO10();
+AgibotHandO10() = default;
 ```
 
 ### 设备信息相关
@@ -178,16 +193,16 @@ explicit AgibotHandO10();
 ```cpp
 /**
  * @brief 获取厂家信息
- * @return 厂家信息长字符串，包含产品型号、序列号、硬件版本、软件版本等信息
+ * @return VendorInfo 厂家信息结构，包含产品型号、序列号、硬件版本、软件版本等信息
  */
-std::string GetVendorInfo();
+VendorInfo GetVendorInfo() const;
 
 /**
  * @brief 获取设备信息
- * @return 设备信息长字符串，包含设备的运行状态信息
+ * @return DeviceInfo 设备信息结构，包含设备ID和通信参数
  * @note 串口暂不支持该接口
  */
-std::string GetDeviceInfo();
+DeviceInfo GetDeviceInfo() const;
 
 /**
  * @brief 设置设备ID
@@ -212,75 +227,83 @@ void SetJointMotorPosi(unsigned char joint_motor_index, short posi);
  * @param joint_motor_index 关节电机索引 (1-10), 失败返回 -1
  * @return 当前位置值
  */
-short GetJointMotorPosi(unsigned char joint_motor_index);
+short GetJointMotorPosi(unsigned char joint_motor_index) const;
 
 /**
  * @brief 批量设置所有关节电机位置
  * @param vec_posi 所有关节的目标位置向量，长度必须为10
  * @note 注意要提供完整的10个关节电机的位置数据
  */
-void SetAllJointMotorPosi(std::vector<short> vec_posi);
+void SetAllJointMotorPosi(const std::vector<short>& vec_posi);
 
 /**
  * @brief 批量获取所有关节电机位置
  * @return 所有关节的当前位置向量，长度为10
  */
-std::vector<short> GetAllJointMotorPosi();
+std::vector<short> GetAllJointMotorPosi() const;
 ```
 
 ### 关节角位置控制
 
 #### 关节角输出/输入顺序（右手）
 
-| 序号 | 关节名称           | 最小角度(rad)        | 最大角度(rad)       | 最小角度(°) | 最大角度(°) | 速度限制(rad/s) |
-| ---- | ------------------ | -------------------- | ------------------- | ----------- | ----------- | --------------- |
-| 1    | R_thumb_roll_joint | -0.17453292519943295 | 0.8726646259971648  | -10         | 50          | 0.164           |
-| 2    | R_thumb_abad_joint | -1.7453292519943295  | 0                   | -100        | 0           | 0.164           |
-| 3    | R_thumb_mcp_joint  | 0                    | 0.8552113334772214  | 0           | 49          | 0.308           |
-| 4    | R_index_abad_joint | -0.20943951023931953 | 0                   | -12         | 0           | 0.164           |
-| 5    | R_index_pip_joint  | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
-| 6    | R_middle_pip_joint | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
-| 7    | R_ring_abad_joint  | 0                    | 0.17453292519943295 | 0           | 10          | 0.164           |
-| 8    | R_ring_pip_joint   | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
-| 9    | R_pinky_abad_joint | 0                    | 0.17453292519943295 | 0           | 10          | 0.164           |
-| 10   | R_pinky_pip_joint  | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
+| 序号 | 关节名称           | 最小角度(rad) | 最大角度(rad) | 最小角度(°) | 最大角度(°) | 速度限制(rad/s) |
+| ---- | ------------------ | ------------- | ------------- | ----------- | ----------- | --------------- |
+| 1    | R_thumb_roll_joint | -0.03         | 1.12          | -2          | 64          | 0.164           |
+| 2    | R_thumb_abad_joint | -1.64         | 0.05          | -94         | 3           | 0.164           |
+| 3    | R_thumb_mcp_joint  | 0             | 0.84          | 0           | 48          | 0.308           |
+| 4    | R_index_abad_joint | -0.16         | 0             | -9          | 0           | 0.164           |
+| 5    | R_index_pip_joint  | 0             | 1.48          | 0           | 85          | 0.308           |
+| 6    | R_middle_pip_joint | 0             | 1.48          | 0           | 85          | 0.308           |
+| 7    | R_ring_abad_joint  | 0             | 0.17          | 0           | 10          | 0.164           |
+| 8    | R_ring_pip_joint   | 0             | 1.48          | 0           | 85          | 0.308           |
+| 9    | R_pinky_abad_joint | 0             | 0.19          | 0           | 11          | 0.164           |
+| 10   | R_pinky_pip_joint  | 0             | 1.48          | 0           | 85          | 0.308           |
 
 #### 关节角输出/输入顺序（左手）
 
-| 序号 | 关节名称           | 最小角度(rad)        | 最大角度(rad)       | 最小角度(°) | 最大角度(°) | 速度限制(rad/s) |
-| ---- | ------------------ | -------------------- | ------------------- | ----------- | ----------- | --------------- |
-| 1    | L_thumb_roll_joint | -0.8726646259971648  | 0.17453292519943295 | -50         | 10          | 0.164           |
-| 2    | L_thumb_abad_joint | 0                    | 1.7453292519943295  | 0           | 100         | 0.164           |
-| 3    | L_thumb_mcp_joint  | -0.8552113334772214  | 0                   | -49         | 0           | 0.308           |
-| 4    | L_index_abad_joint | 0                    | 0.20943951023931953 | 0           | 12          | 0.164           |
-| 5    | L_index_pip_joint  | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
-| 6    | L_middle_pip_joint | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
-| 7    | L_ring_abad_joint  | -0.17453292519943295 | 0                   | -10         | 0           | 0.164           |
-| 8    | L_ring_pip_joint   | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
-| 9    | L_pinky_abad_joint | -0.17453292519943295 | 0                   | -10         | 0           | 0.164           |
-| 10   | L_pinky_pip_joint  | 0                    | 1.5707963267948966  | 0           | 90          | 0.308           |
+| 序号 | 关节名称           | 最小角度(rad) | 最大角度(rad) | 最小角度(°) | 最大角度(°) | 速度限制(rad/s) |
+| ---- | ------------------ | ------------- | ------------- | ----------- | ----------- | --------------- |
+| 1    | L_thumb_roll_joint | -1.12         | 0.03          | -64         | 2           | 0.164           |
+| 2    | L_thumb_abad_joint | -0.05         | 1.64          | -3          | 94          | 0.164           |
+| 3    | L_thumb_mcp_joint  | -0.84         | 0             | -48         | 0           | 0.308           |
+| 4    | L_index_abad_joint | 0             | 0.16          | 0           | 9           | 0.164           |
+| 5    | L_index_pip_joint  | 0             | 1.48          | 0           | 85          | 0.308           |
+| 6    | L_middle_pip_joint | 0             | 1.48          | 0           | 85          | 0.308           |
+| 7    | L_ring_abad_joint  | -0.17         | 0             | -10         | 0           | 0.164           |
+| 8    | L_ring_pip_joint   | 0             | 1.48          | 0           | 85          | 0.308           |
+| 9    | L_pinky_abad_joint | -0.19         | 0             | -11         | 0           | 0.164           |
+| 10   | L_pinky_pip_joint  | 0             | 1.48          | 0           | 85          | 0.308           |
 
 ```cpp
 /**
-    * @brief 设置所有主动关节角度
-    * @param angles 关节角度向量（单位：弧度），长度必须为10
-    * @note 具体输出顺序和限位请参考 assets 模型文件
-    */
+ * @brief 设置所有主动关节角度
+ * @param angles 关节角度向量（单位：弧度），长度必须为10
+ * @note 具体输出顺序和限位请参考 assets 模型文件
+ */
 void SetAllActiveJointAngles(const std::vector<double>& angles);
 
 /**
-    * @brief 获取所有主动关节角度
-    * @return 关节角度向量（单位：弧度），长度为10
-    * @note 具体输出顺序和限位请参考 assets 模型文件
-    */
+ * @brief 获取所有主动关节角度
+ * @return 关节角度向量（单位：弧度），长度为10
+ * @note 具体输出顺序和限位请参考 assets 模型文件
+ */
 std::vector<double> GetAllActiveJointAngles() const;
 
 /**
-    * @brief 获取所有关节角度（包括主动和被动）
-    * @return 关节角度向量（单位：弧度）
-    * @note 具体输出顺序和限位请参考 assets 模型文件
-    */
+ * @brief 获取所有关节角度（包括主动和被动）
+ * @return 关节角度向量（单位：弧度）
+ * @note 具体输出顺序和限位请参考 assets 模型文件
+ */
 std::vector<double> GetAllJointAngles() const;
+
+/**
+ * @brief 根据主动关节角度计算所有关节角度（包括被动关节）
+ * @param active_joint_pos 主动关节角度向量（单位：弧度），长度为10
+ * @return 所有关节角度向量（单位：弧度），包括主动和被动关节
+ * @note 此函数不与硬件通信，仅进行运动学计算
+ */
+std::vector<double> GetAllJointPos(const std::vector<double>& active_joint_pos) const;
 ```
 
 ### 速度控制
@@ -300,33 +323,49 @@ void SetJointMotorVelo(unsigned char joint_motor_index, short velo);
  * @return 当前速度值
  * @note 串口暂不支持该接口
  */
-short GetJointMotorVelo(unsigned char joint_motor_index);
+short GetJointMotorVelo(unsigned char joint_motor_index) const;
 
 /**
  * @brief 批量设置所有关节电机速度
  * @param vec_velo 所有关节的目标速度向量，长度必须为10
  */
-void SetAllJointMotorVelo(std::vector<short> vec_velo);
+void SetAllJointMotorVelo(const std::vector<short>& vec_velo);
 
 /**
  * @brief 批量获取所有关节电机速度
  * @return 所有关节的当前速度向量，长度为10
  */
-std::vector<short> GetAllJointMotorVelo();
+std::vector<short> GetAllJointMotorVelo() const;
 ```
 
 ### 传感器数据
 
 ```cpp
 /**
- * @brief 获取指定手指的触觉传感器数据
- * @param eFinger 手指枚举值
- * @return 对应手指的触觉传感器数据列表，如果是手指传感器则长度为16， 如果是手掌/手心长度为25
+ * @brief 获取指定部位的触觉传感器数据
+ * @param eFinger 手指/手掌枚举值
+ * @return 对应部位的触觉传感器数据列表
+ * @note 数据单位：1g，最大值：255g，采样频率：10Hz
+ *       - 五指：返回16个数据，每个传感器点位传一个数据
+ *       - 手心：返回25个数据，每3个传感器点位传递一个数据
+ *       - 手背：返回25个数据，每4个传感器点位传递一个数据
  */
-std::vector<uint8_t> GetTactileSensorData(EFinger eFinger);
+std::vector<uint8_t> GetTactileSensorData(EFinger eFinger) const;
 ```
 
-手指 16 个传感器排列如下如：
+**传感器规格：**
+- 数据单位：1g
+- 最大值：255g
+- 采样频率：10Hz
+
+**返回数据说明：**
+| 部位 | 数据长度 | 说明 |
+| ---- | -------- | ---- |
+| 五指 | 16 | 每个传感器点位传一个数据 |
+| 手心 | 25 | 每3个传感器点位传递一个数据 |
+| 手背 | 25 | 每4个传感器点位传递一个数据 |
+
+手指 16 个传感器排列如下：
 
 ![](../pic/tactile_sensor_array.jpg)
 
@@ -346,21 +385,21 @@ void SetControlMode(unsigned char joint_motor_index, EControlMode mode);
  * @return 当前控制模式
  * @note 串口暂不支持该接口
  */
-EControlMode GetControlMode(unsigned char joint_motor_index);
+EControlMode GetControlMode(unsigned char joint_motor_index) const;
 
 /**
  * @brief 批量设置所有关节电机控制模式
- * @param vec_ctrl_mode 控制模式向量，长度必须为10
+ * @param ctrl_modes 控制模式向量，长度必须为10
  * @note 串口暂不支持该接口
  */
-void SetAllControlMode(std::vector<unsigned char> vec_ctrl_mode);
+void SetAllControlMode(const std::vector<unsigned char>& ctrl_modes);
 
 /**
  * @brief 批量获取所有关节电机控制模式
  * @return 控制模式向量，长度为10
  * @note 串口暂不支持该接口
  */
-std::vector<unsigned char> GetAllControlMode();
+std::vector<unsigned char> GetAllControlMode() const;
 ```
 
 ### 电流阈值控制
@@ -380,21 +419,21 @@ void SetCurrentThreshold(unsigned char joint_motor_index, short current_threshol
  * @return 当前电流阈值
  * @note 串口暂不支持该接口
  */
-short GetCurrentThreshold(unsigned char joint_motor_index);
+short GetCurrentThreshold(unsigned char joint_motor_index) const;
 
 /**
  * @brief 批量设置所有关节电机电流阈值
- * @param vec_current_threshold 电流阈值向量，长度必须为10
+ * @param current_thresholds 电流阈值向量，长度必须为10
  * @note 串口暂不支持该接口
  */
-void SetAllCurrentThreshold(std::vector<short> vec_current_threshold);
+void SetAllCurrentThreshold(const std::vector<short>& current_thresholds);
 
 /**
  * @brief 批量获取所有关节电机电流阈值
  * @return 电流阈值向量，长度为10
  * @note 串口暂不支持该接口
  */
-std::vector<short> GetAllCurrentThreshold();
+std::vector<short> GetAllCurrentThreshold() const;
 ```
 
 ### 混合控制
@@ -405,7 +444,7 @@ std::vector<short> GetAllCurrentThreshold();
  * @param vec_mix_ctrl 混合控制参数向量
  * @note 串口暂不支持该接口
  */
-void MixCtrlJointMotor(std::vector<MixCtrl> vec_mix_ctrl);
+void MixCtrlJointMotor(const std::vector<MixCtrl>& mix_ctrls);
 ```
 
 ### 错误处理
@@ -416,13 +455,13 @@ void MixCtrlJointMotor(std::vector<MixCtrl> vec_mix_ctrl);
  * @param joint_motor_index 关节电机索引 (1-10)
  * @return 错误报告结构
  */
-JointMotorErrorReport GetErrorReport(unsigned char joint_motor_index);
+JointMotorErrorReport GetErrorReport(unsigned char joint_motor_index) const;
 
 /**
  * @brief 获取所有关节电机错误报告
  * @return 错误报告向量，长度为10
  */
-std::vector<JointMotorErrorReport> GetAllErrorReport();
+std::vector<JointMotorErrorReport> GetAllErrorReport() const;
 
 ```
 
@@ -435,14 +474,14 @@ std::vector<JointMotorErrorReport> GetAllErrorReport();
  * @param joint_motor_index 关节电机索引 (1-10), 失败返回 -1
  * @return 当前温度值
  */
-unsigned short GetTemperatureReport(unsigned char joint_motor_index);
+unsigned short GetTemperatureReport(unsigned char joint_motor_index) const;
 
 /**
  * @brief 获取所有关节电机温度报告
  * @note 查询前需要先设置上报周期
  * @return 温度值向量，长度为10
  */
-std::vector<unsigned short> GetAllTemperatureReport();
+std::vector<unsigned short> GetAllTemperatureReport() const;
 
 ```
 
@@ -455,14 +494,14 @@ std::vector<unsigned short> GetAllTemperatureReport();
  * @param joint_motor_index 关节电机索引 (1-10), 失败返回 -1
  * @return 当前电流值
  */
-short GetCurrentReport(unsigned char joint_motor_index);
+short GetCurrentReport(unsigned char joint_motor_index) const;
 
 /**
  * @brief 获取所有关节电机电流报告
  * @note 查询前需要先设置上报周期
  * @return 电流值向量，长度为10
  */
-std::vector<unsigned short> GetAllCurrentReport();
+std::vector<unsigned short> GetAllCurrentReport() const;
 
 ```
 

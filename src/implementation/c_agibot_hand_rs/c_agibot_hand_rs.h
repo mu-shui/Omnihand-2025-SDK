@@ -27,92 +27,92 @@ class AGIBOT_EXPORT AgibotHandRsO10 : public AgibotHandO10 {
 
   ~AgibotHandRsO10() override = default;
 
-  VendorInfo GetVendorInfo() override;
+  VendorInfo GetVendorInfo() const override;
 
-  DeviceInfo GetDeviceInfo() override;
+  DeviceInfo GetDeviceInfo() const override;
 
   void SetDeviceId(unsigned char device_id) override;
 
   void SetJointMotorPosi(unsigned char joint_motor_index, int16_t posi) override;
 
-  int16_t GetJointMotorPosi(unsigned char joint_motor_index) override;
+  int16_t GetJointMotorPosi(unsigned char joint_motor_index) const override;
 
-  void SetAllJointMotorPosi(std::vector<int16_t> vec_posi) override;
+  void SetAllJointMotorPosi(const std::vector<int16_t>& vec_posi) override;
 
-  std::vector<int16_t> GetAllJointMotorPosi() override;
+  std::vector<int16_t> GetAllJointMotorPosi() const override;
 #if !DISABLE_FUNC
 
   void SetActiveJointAngle(unsigned char joint_motor_index, double angle) override;
 
-  double GetActiveJointAngle(unsigned char joint_motor_index) override;
+  double GetActiveJointAngle(unsigned char joint_motor_index) const override;
 #endif
 
-  void SetAllActiveJointAngles(std::vector<double> vec_angle) override;
+  void SetAllActiveJointAngles(const std::vector<double>& angles) override;
 
-  std::vector<double> GetAllActiveJointAngles() override;
+  std::vector<double> GetAllActiveJointAngles() const override;
 
-  std::vector<double> GetAllJointAngles() override;
+  std::vector<double> GetAllJointAngles() const override;
 
-  std::vector<double> GetAllJointPos(const std::vector<double> &active_joint_pos) override;
+  std::vector<double> GetAllJointPos(const std::vector<double> &active_joint_pos) const override;
 
 #if !DISABLE_FUNC
 
   void SetJointMotorTorque(unsigned char joint_motor_index, int16_t torque) override;
 
-  int16_t GetJointMotorTorque(unsigned char joint_motor_index) override;
+  int16_t GetJointMotorTorque(unsigned char joint_motor_index) const override;
 
-  void SetAllJointMotorTorque(std::vector<int16_t> vec_torque) override;
+  void SetAllJointMotorTorque(const std::vector<int16_t>& vec_torque) override;
 
-  std::vector<int16_t> GetAllJointMotorTorque() override;
+  std::vector<int16_t> GetAllJointMotorTorque() const override;
 #endif
 
   void SetJointMotorVelo(unsigned char joint_motor_index, int16_t velo) override;
 
-  int16_t GetJointMotorVelo(unsigned char joint_motor_index) override;
+  int16_t GetJointMotorVelo(unsigned char joint_motor_index) const override;
 
-  void SetAllJointMotorVelo(std::vector<int16_t> vec_velo) override;
+  void SetAllJointMotorVelo(const std::vector<int16_t>& vec_velo) override;
 
-  std::vector<int16_t> GetAllJointMotorVelo() override;
+  std::vector<int16_t> GetAllJointMotorVelo() const override;
 
-  std::vector<uint8_t> GetTactileSensorData(EFinger eFinger) override;
+  std::vector<uint8_t> GetTactileSensorData(EFinger eFinger) const override;
 
   void SetControlMode(unsigned char joint_motor_index, EControlMode mode) override;
 
-  EControlMode GetControlMode(unsigned char joint_motor_index) override;
+  EControlMode GetControlMode(unsigned char joint_motor_index) const override;
 
-  void SetAllControlMode(std::vector<unsigned char> vec_ctrl_mode) override;
+  void SetAllControlMode(const std::vector<unsigned char>& ctrl_modes) override;
 
-  std::vector<unsigned char> GetAllControlMode() override;
+  std::vector<unsigned char> GetAllControlMode() const override;
 
   void SetCurrentThreshold(unsigned char joint_motor_index, int16_t current_threshold) override;
 
-  int16_t GetCurrentThreshold(unsigned char joint_motor_index) override;
+  int16_t GetCurrentThreshold(unsigned char joint_motor_index) const override;
 
-  void SetAllCurrentThreshold(std::vector<int16_t> vec_current_threshold) override;
+  void SetAllCurrentThreshold(const std::vector<int16_t>& current_thresholds) override;
 
-  std::vector<int16_t> GetAllCurrentThreshold() override;
+  std::vector<int16_t> GetAllCurrentThreshold() const override;
 
-  void MixCtrlJointMotor(std::vector<MixCtrl> vec_mix_ctrl) override;
+  void MixCtrlJointMotor(const std::vector<MixCtrl>& mix_ctrls) override;
 
-  JointMotorErrorReport GetErrorReport(unsigned char joint_motor_index) override;
+  JointMotorErrorReport GetErrorReport(unsigned char joint_motor_index) const override;
 
-  std::vector<JointMotorErrorReport> GetAllErrorReport() override;
+  std::vector<JointMotorErrorReport> GetAllErrorReport() const override;
 #if !DISABLE_FUNC
   void SetErrorReportPeriod(unsigned char joint_motor_index, uint16_t period) override;
 
   void SetAllErrorReportPeriod(std::vector<uint16_t> vec_period) override;
 #endif
-  uint16_t GetTemperatureReport(unsigned char joint_motor_index) override;
+  uint16_t GetTemperatureReport(unsigned char joint_motor_index) const override;
 
-  std::vector<uint16_t> GetAllTemperatureReport() override;
+  std::vector<uint16_t> GetAllTemperatureReport() const override;
 #if !DISABLE_FUNC
   void SetTemperReportPeriod(unsigned char joint_motor_index, uint16_t period) override;
 
   void SetAllTemperReportPeriod(std::vector<uint16_t> vec_period) override;
 #endif
-  int16_t GetCurrentReport(unsigned char joint_motor_index) override;
+  int16_t GetCurrentReport(unsigned char joint_motor_index) const override;
 
-  std::vector<uint16_t> GetAllCurrentReport() override;
+  std::vector<uint16_t> GetAllCurrentReport() const override;
 #if !DISABLE_FUNC
   void SetCurrentReportPeriod(unsigned char joint_motor_index, uint16_t period) override;
 
@@ -121,5 +121,5 @@ class AGIBOT_EXPORT AgibotHandRsO10 : public AgibotHandO10 {
   void ShowDataDetails(bool show) const override;
 
  protected:
-  std::unique_ptr<UartRs485Interface> handrs485_interface_;
+  mutable std::unique_ptr<UartRs485Interface> handrs485_interface_;
 };

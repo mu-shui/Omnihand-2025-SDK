@@ -55,7 +55,7 @@ void AgibotHandRsO10::SetJointMotorPosi(unsigned char joint_motor_index, int16_t
   return;
 }
 
-int16_t AgibotHandRsO10::GetJointMotorPosi(unsigned char joint_motor_index) {
+int16_t AgibotHandRsO10::GetJointMotorPosi(unsigned char joint_motor_index) const {
   if (joint_motor_index > 10 || joint_motor_index < 1) {
     printf("the joint index input error, should be 1 -10, \n");
     return -1;
@@ -80,7 +80,7 @@ int16_t AgibotHandRsO10::GetJointMotorPosi(unsigned char joint_motor_index) {
   return -1;
 }
 
-void AgibotHandRsO10::SetAllJointMotorPosi(std::vector<int16_t> vec_posi) {
+void AgibotHandRsO10::SetAllJointMotorPosi(const std::vector<int16_t>& vec_posi) {
   if (vec_posi.size() < 10) {
     printf("joint number should not less than 10\n");
     return;
@@ -106,7 +106,7 @@ void AgibotHandRsO10::SetAllJointMotorPosi(std::vector<int16_t> vec_posi) {
   return;
 }
 
-std::vector<int16_t> AgibotHandRsO10::GetAllJointMotorPosi() {
+std::vector<int16_t> AgibotHandRsO10::GetAllJointMotorPosi() const {
   uint8_t getalljoint_cmd[8] = {0};
   getalljoint_cmd[0] = 0xEE;
   getalljoint_cmd[1] = 0xAA;
@@ -134,19 +134,19 @@ void AgibotHandCanO10::SetActiveJointAngle(unsigned char joint_motor_index, doub
   return;
 }
 
-double AgibotHandRsO10::GetActiveJointAngle(unsigned char joint_motor_index) {
+double AgibotHandRsO10::GetActiveJointAngle(unsigned char joint_motor_index) const {
   return 0.0;
 }
 #endif
 
-void AgibotHandRsO10::SetAllActiveJointAngles(std::vector<double> vec_angle) {
-  if (vec_angle.size() != DEGREE_OF_FREEDOM) {
+void AgibotHandRsO10::SetAllActiveJointAngles(const std::vector<double>& angles) {
+  if (angles.size() != DEGREE_OF_FREEDOM) {
     std::cerr << "[Error]: 无效参数，需与主动自由度数量 " << std::dec << DEGREE_OF_FREEDOM << " 相匹配." << std::endl;
     return;
   }
 
   // 使用运动学求解器转换关节角度为电机位置
-  std::vector<int> motor_positions = kinematics_solver_ptr_->ActiveJointPos2ActuatorInput(vec_angle);
+  std::vector<int> motor_positions = kinematics_solver_ptr_->ActiveJointPos2ActuatorInput(angles);
 
   // 转换为short向量
   std::vector<int16_t> motor_posi_short(motor_positions.begin(), motor_positions.end());
@@ -156,7 +156,7 @@ void AgibotHandRsO10::SetAllActiveJointAngles(std::vector<double> vec_angle) {
   return;
 }
 
-std::vector<double> AgibotHandRsO10::GetAllActiveJointAngles() {
+std::vector<double> AgibotHandRsO10::GetAllActiveJointAngles() const {
   // 获取所有电机位置
   std::vector<int16_t> motor_posi = GetAllJointMotorPosi();
 
@@ -167,12 +167,12 @@ std::vector<double> AgibotHandRsO10::GetAllActiveJointAngles() {
   return kinematics_solver_ptr_->ActuatorInput2ActiveJointPos(motor_positions);
 }
 
-std::vector<double> AgibotHandRsO10::GetAllJointAngles() {
+std::vector<double> AgibotHandRsO10::GetAllJointAngles() const {
   std::vector<double> active_joint_angles = GetAllActiveJointAngles();
   return kinematics_solver_ptr_->GetAllJointPos(active_joint_angles);
 }
 
-std::vector<double> AgibotHandRsO10::GetAllJointPos(const std::vector<double> &active_joint_pos) {
+std::vector<double> AgibotHandRsO10::GetAllJointPos(const std::vector<double> &active_joint_pos) const {
   return kinematics_solver_ptr_->GetAllJointPos(active_joint_pos);
 }
 
@@ -185,7 +185,7 @@ int16_t AgibotHandCanO10::GetJointMotorTorque(unsigned char joint_motor_index) {
   return 0;
 }
 
-void AgibotHandCanO10::SetAllJointMotorTorque(std::vector<int16_t> vec_torque) {
+void AgibotHandRsO10::SetAllJointMotorTorque(const std::vector<int16_t>& vec_torque) {
   return;
 }
 
@@ -198,11 +198,11 @@ void AgibotHandRsO10::SetJointMotorVelo(unsigned char joint_motor_index, int16_t
   return;
 }
 
-int16_t AgibotHandRsO10::GetJointMotorVelo(unsigned char joint_motor_index) {
+int16_t AgibotHandRsO10::GetJointMotorVelo(unsigned char joint_motor_index) const {
   return 0;
 }
 
-void AgibotHandRsO10::SetAllJointMotorVelo(std::vector<int16_t> vec_velo) {
+void AgibotHandRsO10::SetAllJointMotorVelo(const std::vector<int16_t>& vec_velo) {
   if (vec_velo.size() < 10) {
     printf("velocity data number should not less than 10\n");
     return;
@@ -228,7 +228,7 @@ void AgibotHandRsO10::SetAllJointMotorVelo(std::vector<int16_t> vec_velo) {
   return;
 }
 
-std::vector<int16_t> AgibotHandRsO10::GetAllJointMotorVelo() {
+std::vector<int16_t> AgibotHandRsO10::GetAllJointMotorVelo() const {
   uint8_t getalljointvelo_cmd[8] = {0};
   getalljointvelo_cmd[0] = 0xEE;
   getalljointvelo_cmd[1] = 0xAA;
@@ -252,7 +252,7 @@ std::vector<int16_t> AgibotHandRsO10::GetAllJointMotorVelo() {
   return handrs485_interface_->getalljointmotorvelo_result_;
 }
 
-std::vector<uint8_t> AgibotHandRsO10::GetTactileSensorData(EFinger eFinger) {
+std::vector<uint8_t> AgibotHandRsO10::GetTactileSensorData(EFinger eFinger) const {
   if (eFinger == EFinger::eUnknown ||
       static_cast<unsigned char>(eFinger) < static_cast<unsigned char>(EFinger::eThumb) ||
       static_cast<unsigned char>(eFinger) > static_cast<unsigned char>(EFinger::eDorsum)) {
@@ -307,15 +307,15 @@ void AgibotHandRsO10::SetControlMode(unsigned char joint_motor_index, EControlMo
   return;  // 0x15 need test
 }
 
-EControlMode AgibotHandRsO10::GetControlMode(unsigned char joint_motor_index) {
+EControlMode AgibotHandRsO10::GetControlMode(unsigned char joint_motor_index) const {
   return EControlMode::eUnknown;
 }
 
-void AgibotHandRsO10::SetAllControlMode(std::vector<unsigned char> vec_ctrl_mode) {
+void AgibotHandRsO10::SetAllControlMode(const std::vector<unsigned char>& ctrl_modes) {
   return;
 }
 
-std::vector<unsigned char> AgibotHandRsO10::GetAllControlMode() {
+std::vector<unsigned char> AgibotHandRsO10::GetAllControlMode() const {
   return {};
 }
 
@@ -323,23 +323,23 @@ void AgibotHandRsO10::SetCurrentThreshold(unsigned char joint_motor_index, int16
   return;
 }
 
-int16_t AgibotHandRsO10::GetCurrentThreshold(unsigned char joint_motor_index) {
+int16_t AgibotHandRsO10::GetCurrentThreshold(unsigned char joint_motor_index) const {
   return {};
 }
 
-void AgibotHandRsO10::SetAllCurrentThreshold(std::vector<int16_t> vec_current_threshold) {
+void AgibotHandRsO10::SetAllCurrentThreshold(const std::vector<int16_t>& current_thresholds) {
   return;
 }
 
-std::vector<int16_t> AgibotHandRsO10::GetAllCurrentThreshold() {
+std::vector<int16_t> AgibotHandRsO10::GetAllCurrentThreshold() const {
   return {};
 }
 
-void AgibotHandRsO10::MixCtrlJointMotor(std::vector<MixCtrl> vec_mix_ctrl) {
+void AgibotHandRsO10::MixCtrlJointMotor(const std::vector<MixCtrl>& mix_ctrls) {
   return;
 }
 
-JointMotorErrorReport AgibotHandRsO10::GetErrorReport(unsigned char joint_motor_index) {
+JointMotorErrorReport AgibotHandRsO10::GetErrorReport(unsigned char joint_motor_index) const {
   if (joint_motor_index > 10 || joint_motor_index < 1) {
     printf("the joint motor index input error, should be 1 -10, \n");
     return {};
@@ -383,7 +383,7 @@ JointMotorErrorReport AgibotHandRsO10::GetErrorReport(unsigned char joint_motor_
   // need test
 }
 
-std::vector<JointMotorErrorReport> AgibotHandRsO10::GetAllErrorReport() {
+std::vector<JointMotorErrorReport> AgibotHandRsO10::GetAllErrorReport() const {
   std::vector<JointMotorErrorReport> all_errorreport;
   uint8_t geterrorport_cmd[8] = {0};
   geterrorport_cmd[0] = 0xEE;
@@ -427,7 +427,7 @@ void AgibotHandRsO10::SetAllErrorReportPeriod(std::vector<uint16_t> vec_period) 
   return;
 }
 #endif
-uint16_t AgibotHandRsO10::GetTemperatureReport(unsigned char joint_motor_index) {
+uint16_t AgibotHandRsO10::GetTemperatureReport(unsigned char joint_motor_index) const {
   if (joint_motor_index > 10 || joint_motor_index < 1) {
     printf("the joint motor index input error, should be 1 -10, \n");
     return -1;
@@ -451,7 +451,7 @@ uint16_t AgibotHandRsO10::GetTemperatureReport(unsigned char joint_motor_index) 
   return -1;  // 0xC
 }
 
-std::vector<uint16_t> AgibotHandRsO10::GetAllTemperatureReport() {
+std::vector<uint16_t> AgibotHandRsO10::GetAllTemperatureReport() const {
   std::vector<uint16_t> alltempresult(DEGREE_OF_FREEDOM, 0);
   uint8_t getalltempreport_cmd[8] = {0xEE, 0xAA, 0x01, 0x00, 0x04, 0x7, 0x55, 0x55};
   getalltempreport_cmd[4] = 1;
@@ -482,7 +482,7 @@ void AgibotHandRsO10::SetAllTemperReportPeriod(std::vector<uint16_t> vec_period)
   return;
 }
 #endif
-int16_t AgibotHandRsO10::GetCurrentReport(unsigned char joint_motor_index) {
+int16_t AgibotHandRsO10::GetCurrentReport(unsigned char joint_motor_index) const {
   if (joint_motor_index > 10 || joint_motor_index < 1) {
     printf("the joint motor index input error, should be 1 -10, \n");
     return -1;
@@ -507,7 +507,7 @@ int16_t AgibotHandRsO10::GetCurrentReport(unsigned char joint_motor_index) {
   return handrs485_interface_->getallcurrentreport_result_[joint_motor_index - 1];  // 0xA
 }
 
-std::vector<uint16_t> AgibotHandRsO10::GetAllCurrentReport() {
+std::vector<uint16_t> AgibotHandRsO10::GetAllCurrentReport() const {
   std::vector<uint16_t> allcurrentresult(DEGREE_OF_FREEDOM, 0);
   uint8_t getallcurrent_cmd[8] = {0xEE, 0xAA, 0x01, 0x00, 0x04, 0x7, 0x55, 0x55};
   getallcurrent_cmd[4] = 1;
@@ -537,7 +537,7 @@ void AgibotHandRsO10::SetAllCurrentReportPeriod(std::vector<uint16_t> vec_period
   return;
 }
 #endif
-VendorInfo AgibotHandRsO10::GetVendorInfo() {
+VendorInfo AgibotHandRsO10::GetVendorInfo() const {
   uint8_t getvendorinfo_cmd[8] = {0xEE, 0xAA, 0x01, 0x00, 0x04, 0x7, 0x55, 0x55};
   getvendorinfo_cmd[4] = 1;
   getvendorinfo_cmd[5] = 0xCD;
@@ -557,7 +557,7 @@ VendorInfo AgibotHandRsO10::GetVendorInfo() {
   return handrs485_interface_->getvendorinfo_result_;  // 0xCD
 }
 
-DeviceInfo AgibotHandRsO10::GetDeviceInfo() {
+DeviceInfo AgibotHandRsO10::GetDeviceInfo() const {
   return {};
 }
 

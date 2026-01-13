@@ -5,7 +5,6 @@
 ### EFinger
 
 ```python
-# Available values
 from enum import IntEnum
 
 class EFinger(IntEnum):
@@ -17,6 +16,15 @@ class EFinger(IntEnum):
     PALM = 6
     DORSUM = 7
     UNKNOWN = 255
+```
+
+### EHandType
+
+```python
+class EHandType(IntEnum):
+    LEFT = 0      # Left hand
+    RIGHT = 1     # Right hand
+    UNKNOWN = 10
 ```
 
 ### EControlMode
@@ -109,15 +117,37 @@ The main class for controlling the dexterous hand, providing all control interfa
 ```python
 class AgibotHandO10:
     @staticmethod
-    def create_hand(device_id: int = 1,
-                    hand_type: EHandType = EHandType.LEFT,
-                    cfg_path: str = "") -> 'AgibotHandO10': ...
+    def create_hand(hand_type: EHandType = EHandType.LEFT,
+                    device_id: int = 1,
+                    canfd_id: int = 0,
+                    channel_id: int = 0) -> 'AgibotHandO10': ...
     """Creates a dexterous hand object.
 
     Args:
-        device_id: The device ID, defaults to 1.
         hand_type: The hand type, defaults to the left hand.
-        cfg_path: The path to the configuration file, defaults to empty (uses default config).
+        device_id: The device ID, defaults to 1.
+        canfd_id: USB CANFD adapter device index, defaults to 0.
+        channel_id: CAN channel index, defaults to 0 (USBCANFD-200U has 2 channels).
+    """
+
+    @staticmethod
+    def find_canfd_id_by_serial_number(serial_number: str) -> int: ...
+    """Finds canfd_id by serial number.
+    
+    Args:
+        serial_number: Device serial number (supports partial matching).
+    Returns:
+        canfd_id, returns -1 if not found.
+    """
+
+    @staticmethod
+    def find_canfd_ids_by_serial_numbers(serial_numbers: List[str]) -> List[int]: ...
+    """Batch find canfd_ids by serial numbers (scans only once).
+    
+    Args:
+        serial_numbers: List of serial numbers.
+    Returns:
+        List of canfd_ids, -1 for not found positions.
     """
 
     def __init__(self):
@@ -125,11 +155,11 @@ class AgibotHandO10:
         pass
 
     # Device Information
-    def get_vendor_info(self) -> str:
+    def get_vendor_info(self) -> VendorInfo:
         """Gets vendor information."""
         pass
 
-    def get_device_info(self) -> str:
+    def get_device_info(self) -> DeviceInfo:
         """Gets device information."""
         pass
 
@@ -185,24 +215,24 @@ class AgibotHandO10:
         pass
 
     # Sensor Data
-    def get_tactile_sensor_data(self, finger: EFinger) -> List[int]:
-        """Gets the tactile sensor data array (1D vector) for a specified finger."""
+    def get_tactile_sensor_data(self, eFinger: EFinger) -> List[int]:
+        """Gets tactile sensor data (unit: 1g, max: 255g, sampling: 10Hz)."""
         pass
 
     # Control Mode
-    def set_control_mode(self, joint_motor_index: int, mode: EControlMode) -> None:
+    def set_control_mode(self, joint_motor_index: int, mode: int) -> None:
         """Sets the control mode of a single joint motor."""
         pass
 
-    def get_control_mode(self, joint_motor_index: int) -> EControlMode:
+    def get_control_mode(self, joint_motor_index: int) -> int:
         """Gets the control mode of a single joint motor."""
         pass
 
-    def set_all_control_modes(self, modes: List[EControlMode]) -> None:
+    def set_all_control_modes(self, ctrl_modes: List[int]) -> None:
         """Sets the control modes of all joint motors in batch."""
         pass
 
-    def get_all_control_modes(self) -> List[EControlMode]:
+    def get_all_control_modes(self) -> List[int]:
         """Gets the control modes of all joint motors in batch."""
         pass
 
@@ -263,22 +293,77 @@ class AgibotHandO10:
 
 ## Detailed API Reference
 
+### Device Discovery and Creation (Static Methods)
+
+```python
+@staticmethod
+def find_canfd_id_by_serial_number(serial_number: str) -> int:
+    """Finds canfd_id by serial number.
+
+    Args:
+        serial_number: Device serial number (supports partial matching).
+
+    Returns:
+        int: canfd_id, returns -1 if not found.
+
+    Example:
+        canfd_id = AgibotHandO10.find_canfd_id_by_serial_number("A029A58630B30D14DBB0")
+    """
+
+@staticmethod
+def find_canfd_ids_by_serial_numbers(serial_numbers: List[str]) -> List[int]:
+    """Batch find canfd_ids by serial numbers (scans only once, more efficient).
+
+    Args:
+        serial_numbers: List of serial numbers.
+
+    Returns:
+        List[int]: List of canfd_ids, -1 for not found positions.
+
+    Example:
+        # Scan once to find both left and right hands
+        canfd_ids = AgibotHandO10.find_canfd_ids_by_serial_numbers([
+            "LEFT_HAND_SN",
+            "RIGHT_HAND_SN"
+        ])
+        left_hand = AgibotHandO10.create_hand(EHandType.LEFT, 1, canfd_ids[0])
+        right_hand = AgibotHandO10.create_hand(EHandType.RIGHT, 1, canfd_ids[1])
+    """
+
+@staticmethod
+def create_hand(hand_type: EHandType = EHandType.LEFT,
+               device_id: int = 1,
+               canfd_id: int = 0,
+               channel_id: int = 0) -> 'AgibotHandO10':
+    """Creates a dexterous hand object.
+
+    Args:
+        hand_type: Hand type (EHandType.LEFT or EHandType.RIGHT).
+        device_id: Device ID, defaults to 1, determined by the firmware of hand device.
+        canfd_id: USB CANFD adapter device index, defaults to 0.
+        channel_id: CAN channel index, defaults to 0 (USBCANFD-200U has 2 channels: 0 and 1).
+
+    Returns:
+        AgibotHandO10: Dexterous hand instance.
+    """
+```
+
 ### Device Information
 
 ```python
-def get_vendor_info(self) -> str:
+def get_vendor_info(self) -> VendorInfo:
     """Gets vendor information.
 
     Returns:
-        str: A long string containing vendor info, including product model,
-             serial number, hardware version, software version, etc.
+        VendorInfo: Vendor info structure containing product model,
+                    serial number, hardware version, software version, etc.
     """
 
-def get_device_info(self) -> str:
+def get_device_info(self) -> DeviceInfo:
     """Gets device information.
 
     Returns:
-        str: A long string containing the device's operational status information.
+        DeviceInfo: Device info structure containing device ID and communication parameters.
 
     Note:
         This interface is not supported for serial port communication.
@@ -338,33 +423,33 @@ def get_all_joint_positions(self) -> List[int]:
 
 #### Joint Angle I/O Order (Right Hand)
 
-| Index | Joint Name         | Min Angle (rad)      | Max Angle (rad)     | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
-| ----- | ------------------ | -------------------- | ------------------- | ------------- | ------------- | ---------------------- |
-| 1     | R_thumb_roll_joint | -0.17453292519943295 | 0.8726646259971648  | -10           | 50            | 0.164                  |
-| 2     | R_thumb_abad_joint | -1.7453292519943295  | 0                   | -100          | 0             | 0.164                  |
-| 3     | R_thumb_mcp_joint  | 0                    | 0.8552113334772214  | 0             | 49            | 0.308                  |
-| 4     | R_index_abad_joint | -0.20943951023931953 | 0                   | -12           | 0             | 0.164                  |
-| 5     | R_index_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 6     | R_middle_pip_joint | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 7     | R_ring_abad_joint  | 0                    | 0.17453292519943295 | 0             | 10            | 0.164                  |
-| 8     | R_ring_pip_joint   | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 9     | R_pinky_abad_joint | 0                    | 0.17453292519943295 | 0             | 10            | 0.164                  |
-| 10    | R_pinky_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
+| Index | Joint Name         | Min Angle (rad) | Max Angle (rad) | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
+| ----- | ------------------ | --------------- | --------------- | ------------- | ------------- | ---------------------- |
+| 1     | R_thumb_roll_joint | -0.03           | 1.12            | -2            | 64            | 0.164                  |
+| 2     | R_thumb_abad_joint | -1.64           | 0.05            | -94           | 3             | 0.164                  |
+| 3     | R_thumb_mcp_joint  | 0               | 0.84            | 0             | 48            | 0.308                  |
+| 4     | R_index_abad_joint | -0.16           | 0               | -9            | 0             | 0.164                  |
+| 5     | R_index_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 6     | R_middle_pip_joint | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 7     | R_ring_abad_joint  | 0               | 0.17            | 0             | 10            | 0.164                  |
+| 8     | R_ring_pip_joint   | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 9     | R_pinky_abad_joint | 0               | 0.19            | 0             | 11            | 0.164                  |
+| 10    | R_pinky_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
 
 #### Joint Angle I/O Order (Left Hand)
 
-| Index | Joint Name         | Min Angle (rad)      | Max Angle (rad)     | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
-| ----- | ------------------ | -------------------- | ------------------- | ------------- | ------------- | ---------------------- |
-| 1     | L_thumb_roll_joint | -0.8726646259971648  | 0.17453292519943295 | -50           | 10            | 0.164                  |
-| 2     | L_thumb_abad_joint | 0                    | 1.7453292519943295  | 0             | 100           | 0.164                  |
-| 3     | L_thumb_mcp_joint  | -0.8552113334772214  | 0                   | -49           | 0             | 0.308                  |
-| 4     | L_index_abad_joint | 0                    | 0.20943951023931953 | 0             | 12            | 0.164                  |
-| 5     | L_index_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 6     | L_middle_pip_joint | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 7     | L_ring_abad_joint  | -0.17453292519943295 | 0                   | -10           | 0             | 0.164                  |
-| 8     | L_ring_pip_joint   | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
-| 9     | L_pinky_abad_joint | -0.17453292519943295 | 0                   | -10           | 0             | 0.164                  |
-| 10    | L_pinky_pip_joint  | 0                    | 1.5707963267948966  | 0             | 90            | 0.308                  |
+| Index | Joint Name         | Min Angle (rad) | Max Angle (rad) | Min Angle (°) | Max Angle (°) | Velocity Limit (rad/s) |
+| ----- | ------------------ | --------------- | --------------- | ------------- | ------------- | ---------------------- |
+| 1     | L_thumb_roll_joint | -1.12           | 0.03            | -64           | 2             | 0.164                  |
+| 2     | L_thumb_abad_joint | -0.05           | 1.64            | -3            | 94            | 0.164                  |
+| 3     | L_thumb_mcp_joint  | -0.84           | 0               | -48           | 0             | 0.308                  |
+| 4     | L_index_abad_joint | 0               | 0.16            | 0             | 9             | 0.164                  |
+| 5     | L_index_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 6     | L_middle_pip_joint | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 7     | L_ring_abad_joint  | -0.17           | 0               | -10           | 0             | 0.164                  |
+| 8     | L_ring_pip_joint   | 0               | 1.48            | 0             | 85            | 0.308                  |
+| 9     | L_pinky_abad_joint | -0.19           | 0               | -11           | 0             | 0.164                  |
+| 10    | L_pinky_pip_joint  | 0               | 1.48            | 0             | 85            | 0.308                  |
 
 ```python
 def set_all_active_joint_angles(self, angles: List[float]) -> None:
@@ -443,11 +528,11 @@ def get_all_joint_velocities(self) -> List[int]:
 ### Sensor Data
 
 ```python
-def get_tactile_sensor_data(self, finger: EFinger) -> List[int]:
-    """Gets the tactile sensor data for a specified finger.
+def get_tactile_sensor_data(self, eFinger: EFinger) -> List[int]:
+    """Gets the tactile sensor data for a specified part.
 
     Args:
-        finger: The finger enum value. Can be one of:
+        eFinger: The finger/palm enum value. Can be one of:
                 EFinger.THUMB,
                 EFinger.INDEX,
                 EFinger.MIDDLE,
@@ -457,10 +542,27 @@ def get_tactile_sensor_data(self, finger: EFinger) -> List[int]:
                 EFinger.DORSUM
 
     Returns:
-        List[int]: A list of tactile sensor data. The length is 16 for a finger
-                   sensor, and 25 for the palm or dorsum sensor.
+        List[int]: A list of tactile sensor data for the specified part.
+                   - Fingers: Returns 16 data points, one per sensor point
+                   - Palm: Returns 25 data points, one per 3 sensor points
+                   - Dorsum: Returns 25 data points, one per 4 sensor points
+
+    Note:
+        Data unit: 1g, Max value: 255g, Sampling frequency: 10Hz
     """
 ```
+
+**Sensor Specifications:**
+- Data unit: 1g
+- Max value: 255g
+- Sampling frequency: 10Hz
+
+**Return Data Description:**
+| Part | Data Length | Description |
+| ---- | ----------- | ----------- |
+| Fingers | 16 | One data point per sensor |
+| Palm | 25 | One data point per 3 sensors |
+| Dorsum | 25 | One data point per 4 sensors |
 
 The 16 sensors on a finger are arranged as follows:
 
@@ -469,7 +571,7 @@ The 16 sensors on a finger are arranged as follows:
 ### Control Mode
 
 ```python
-def set_control_mode(self, joint_motor_index: int, mode: EControlMode) -> None:
+def set_control_mode(self, joint_motor_index: int, mode: int) -> None:
     """Sets the control mode of a single joint motor.
 
     Args:
@@ -477,34 +579,34 @@ def set_control_mode(self, joint_motor_index: int, mode: EControlMode) -> None:
         mode: The control mode enum value.
     """
 
-def get_control_mode(self, joint_motor_index: int) -> EControlMode:
+def get_control_mode(self, joint_motor_index: int) -> int:
     """Gets the control mode of a single joint motor.
 
     Args:
         joint_motor_index: The index of the joint motor (1-10).
 
     Returns:
-        EControlMode: The current control mode.
+        int: The current control mode.
 
     Note:
         This interface is not supported for serial port communication.
     """
 
-def set_all_control_modes(self, modes: List[EControlMode]) -> None:
+def set_all_control_modes(self, ctrl_modes: List[int]) -> None:
     """Sets the control modes of all joint motors in batch.
 
     Args:
-        modes: A list of control modes, must have a length of 10.
+        ctrl_modes: A list of control modes, must have a length of 10.
 
     Note:
         This interface is not supported for serial port communication.
     """
 
-def get_all_control_modes(self) -> List[EControlMode]:
+def get_all_control_modes(self) -> List[int]:
     """Gets the control modes of all joint motors in batch.
 
     Returns:
-        List[EControlMode]: A list of control modes, with a length of 10.
+        List[int]: A list of control modes, with a length of 10.
 
     Note:
         This interface is not supported for serial port communication.

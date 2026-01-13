@@ -126,7 +126,7 @@ std::vector<int> OmnihandCtrl::SetHandGesture(const int &gesture_num) {
 }
 
 std::vector<int> OmnihandCtrl::ActiveJointPos2ActuatorInput(
-    const std::vector<double> &active_joint_pos) {
+    const std::vector<double>& active_joint_pos) {
   // check active_joint_pos size
 
   assert(active_joint_pos.size() == ActiveJointCount);

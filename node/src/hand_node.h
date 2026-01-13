@@ -30,7 +30,7 @@ namespace omnihand {
 
 class OmniHandProNode : public rclcpp::Node {
  public:
-  OmniHandProNode(uint8_t device_id, uint8_t canfd_id, EHandType hand_type);
+  OmniHandProNode(EHandType hand_type, uint8_t device_id, uint8_t canfd_id, uint8_t channel_id = 0);
   ~OmniHandProNode();
 
  private:
