@@ -5,8 +5,15 @@ from omnihand_2025 import AgibotHandO10, EFinger, EControlMode, EHandType
 import time
 
 def main():
-    left_hand = AgibotHandO10.create_hand(canfd_id=1, hand_type=EHandType.LEFT)
-    right_hand = AgibotHandO10.create_hand(canfd_id=0, hand_type=EHandType.RIGHT)
+    # left_hand_scanfd_id = AgibotHandO10.find_canfd_id_by_serial_number("201BFF2AF01202D44690")
+    # right_hand_scanfd_id = AgibotHandO10.find_canfd_id_by_serial_number("A029A58630B30D14DBB")
+    [left_hand_scanfd_id, right_hand_scanfd_id] = AgibotHandO10.find_canfd_ids_by_serial_numbers(["201BFF2AF01202D44690", "A029A58630B30D14DBB"])
+    if left_hand_scanfd_id == -1 or right_hand_scanfd_id == -1:
+        print("Cannot find CANFD devices by serial numbers!")
+        return
+    
+    left_hand = AgibotHandO10.create_hand(canfd_id=left_hand_scanfd_id, hand_type=EHandType.LEFT)
+    right_hand = AgibotHandO10.create_hand(canfd_id=right_hand_scanfd_id, hand_type=EHandType.RIGHT)
     
     # 启用详细日志查看 CAN 通信
     left_hand.show_data_details(True)

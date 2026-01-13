@@ -14,6 +14,7 @@
 #include <c_agibot_hand_base.h>
 #include "implementation/c_agibot_hand_can/c_agibot_hand_can.h"
 #include "implementation/c_agibot_hand_rs/c_agibot_hand_rs.h"
+#include "can_bus_device/zlg_usb_canfd/c_zlg_usbcanfd_sdk.h"
 
 namespace YAML {
 template <>
@@ -45,4 +46,12 @@ std::unique_ptr<AgibotHandO10> AgibotHandO10::createHand(
   hand->Reset(device_id, hand_type);
 
   return hand;
+}
+
+int AgibotHandO10::findCanfdIdBySerialNumber(const std::string& serial_number) {
+  return ZlgUsbcanfdSDK::FindDeviceBySerialNumber(serial_number);
+}
+
+std::vector<int> AgibotHandO10::findCanfdIdsBySerialNumbers(const std::vector<std::string>& serial_numbers) {
+  return ZlgUsbcanfdSDK::FindDevicesBySerialNumbers(serial_numbers);
 }

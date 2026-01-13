@@ -98,6 +98,16 @@ PYBIND11_MODULE(omnihand_2025_core, m) {
           py::arg("device_id") = DEFAULT_DEVICE_ID,
           py::arg("canfd_id") = 0,
           py::arg("channel_id") = 0)
+      .def_static(
+          "find_canfd_id_by_serial_number",
+          &AgibotHandO10::findCanfdIdBySerialNumber,
+          py::arg("serial_number"),
+          "通过序列号查找canfd_id，支持部分匹配，找不到返回-1")
+      .def_static(
+          "find_canfd_ids_by_serial_numbers",
+          &AgibotHandO10::findCanfdIdsBySerialNumbers,
+          py::arg("serial_numbers"),
+          "批量通过序列号查找canfd_id（只扫描一次），找不到的位置返回-1")
       .def("set_device_id", &AgibotHandO10::SetDeviceId)
       .def("get_vendor_info", &AgibotHandO10::GetVendorInfo)
       .def("get_device_info", &AgibotHandO10::GetDeviceInfo)

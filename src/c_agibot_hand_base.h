@@ -44,6 +44,20 @@ class AGIBOT_EXPORT AgibotHandO10 {
       unsigned char device_id,
       unsigned char canfd_id,
       unsigned char channel_id = 0);
+
+  /**
+   * @brief 通过序列号查找canfd_id
+   * @param serial_number 设备序列号 (支持部分匹配)
+   * @return canfd_id，找不到返回 -1
+   */
+  static int findCanfdIdBySerialNumber(const std::string& serial_number);
+
+  /**
+   * @brief 批量通过序列号查找canfd_id（只扫描一次）
+   * @param serial_numbers 序列号列表
+   * @return canfd_id列表，找不到的位置返回 -1
+   */
+  static std::vector<int> findCanfdIdsBySerialNumbers(const std::vector<std::string>& serial_numbers);
   /**
    * @brief 构造函数
    * @param device_id 设备Id

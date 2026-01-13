@@ -227,3 +227,71 @@ int ZlgUsbcanfdSDK::SendFrame(unsigned int id, unsigned char* data, unsigned cha
     return -1;
   }
 }
+
+/**
+ * @brief 扫描所有连接的USBCANFD设备
+ * @param max_devices 最大扫描数量 (默认8)
+ * @return 设备信息列表
+ */
+static std::vector<CanfdDeviceInfo> ScanDevices(int max_devices = 8) {
+  std::vector<CanfdDeviceInfo> devices;
+
+  for (int i = 0; i < max_devices; i++) {
+    // 尝试打开设备
+    if (!VCI_OpenDevice(DEVICE_TYPE_USBCANFD, i, 0)) {
+      continue;  // 设备不存在，跳过
+    }
+
+    // 读取设备信息
+    ZCAN_DEV_INF devInfo;
+    memset(&devInfo, 0, sizeof(devInfo));
+    if (VCI_ReadBoardInfo(DEVICE_TYPE_USBCANFD, i, &devInfo)) {
+      CanfdDeviceInfo info;
+      info.canfd_id = i;
+      info.serial_number = std::string(reinterpret_cast<char*>(devInfo.sn), 20);
+      info.device_name = std::string(reinterpret_cast<char*>(devInfo.id), 40);
+      info.num_channels = devInfo.chn;
+
+      // 去除尾部空格和空字符
+      size_t pos = info.serial_number.find_last_not_of(" \0");
+      if (pos != std::string::npos) info.serial_number.erase(pos + 1);
+      pos = info.device_name.find_last_not_of(" \0");
+      if (pos != std::string::npos) info.device_name.erase(pos + 1);
+
+      devices.push_back(info);
+      std::cout << "[INFO]: Found device " << i << ": " << info.device_name 
+                << ", SN=" << info.serial_number 
+                << ", Channels=" << (int)info.num_channels << std::endl;
+    }
+
+    // 关闭设备（扫描完成后）
+    VCI_CloseDevice(DEVICE_TYPE_USBCANFD, i);
+  }
+
+  return devices;
+}
+
+int ZlgUsbcanfdSDK::FindDeviceBySerialNumber(const std::string& serial_number) {
+  auto devices = ScanDevices();
+  for (const auto& dev : devices) {
+    if (dev.serial_number.find(serial_number) != std::string::npos) {
+      return dev.canfd_id;
+    }
+  }
+  return -1;  // 未找到
+}
+
+std::vector<int> ZlgUsbcanfdSDK::FindDevicesBySerialNumbers(const std::vector<std::string>& serial_numbers) {
+  auto devices = ScanDevices();  // 只扫描一次
+  std::vector<int> results(serial_numbers.size(), -1);
+  
+  for (size_t i = 0; i < serial_numbers.size(); i++) {
+    for (const auto& dev : devices) {
+      if (dev.serial_number.find(serial_numbers[i]) != std::string::npos) {
+        results[i] = dev.canfd_id;
+        break;
+      }
+    }
+  }
+  return results;
+}

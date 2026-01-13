@@ -13,6 +13,18 @@
 #include "../c_can_bus_device.h"
 #include <map>
 #include <mutex>
+#include <string>
+#include <vector>
+
+/**
+ * @brief CANFD设备信息结构
+ */
+struct CanfdDeviceInfo {
+  unsigned char canfd_id;      // 设备索引
+  std::string serial_number;   // 设备序列号
+  std::string device_name;     // 设备名称 (如 "USBCANFD-100U-mini")
+  unsigned char num_channels;  // 通道数量
+};
 
 /**
  * @brief 基于周立功usbcanfd的SDK的CAN Device类
@@ -33,6 +45,20 @@ class ZlgUsbcanfdSDK : public CanBusDeviceBase {
   int SendFrame(unsigned int id, unsigned char* data, unsigned char length) override;
 
   bool IsInit() override;
+
+  /**
+   * @brief 通过序列号查找canfd_id
+   * @param serial_number 设备序列号 (支持部分匹配)
+   * @return canfd_id，找不到返回 -1
+   */
+  static int FindDeviceBySerialNumber(const std::string& serial_number);
+
+  /**
+   * @brief 批量通过序列号查找canfd_id（只扫描一次）
+   * @param serial_numbers 序列号列表
+   * @return canfd_id列表，找不到的位置返回 -1
+   */
+  static std::vector<int> FindDevicesBySerialNumbers(const std::vector<std::string>& serial_numbers);
 
  private:
   unsigned char canfd_id_;
