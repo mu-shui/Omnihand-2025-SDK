@@ -278,7 +278,7 @@ std::vector<short> GetAllJointMotorPosi();
 ```cpp
 /**
  * @brief Sets the angles of all active joints.
- * @param vec_angle A vector of joint angles (in radians), must have a length of 10.
+ * @param angles A vector of joint angles (in radians), must have a length of 10.
  * @note For specific order and limits, please refer to the assets model files.
  */
 void SetAllActiveJointAngles(const std::vector<double>& angles);
@@ -389,7 +389,7 @@ EControlMode GetControlMode(unsigned char joint_motor_index);
 
 /**
  * @brief Sets the control modes of all joint motors in batch.
- * @param vec_ctrl_mode A vector of control modes, must have a length of 10.
+ * @param ctrl_modes A vector of control modes, must have a length of 10.
  * @note This interface is not supported for serial port communication.
  */
 void SetAllControlMode(const std::vector<unsigned char>& ctrl_modes);
@@ -423,7 +423,7 @@ short GetCurrentThreshold(unsigned char joint_motor_index);
 
 /**
  * @brief Sets the current thresholds of all joint motors in batch.
- * @param vec_current_threshold A vector of current thresholds, must have a length of 10.
+ * @param current_thresholds A vector of current thresholds, must have a length of 10.
  * @note This interface is not supported for serial port communication.
  */
 void SetAllCurrentThreshold(const std::vector<short>& current_thresholds);
@@ -441,7 +441,7 @@ std::vector<short> GetAllCurrentThreshold();
 ```cpp
 /**
  * @brief Controls joint motors in mixed mode.
- * @param vec_mix_ctrl A vector of mixed control parameters.
+ * @param mix_ctrls A vector of mixed control parameters.
  * @note This interface is not supported for serial port communication.
  */
 void MixCtrlJointMotor(const std::vector<MixCtrl>& mix_ctrls);

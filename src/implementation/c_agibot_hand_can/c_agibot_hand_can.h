@@ -18,6 +18,20 @@ class AGIBOT_EXPORT AgibotHandCanO10 : public AgibotHandO10 {
   struct Options {
     std::string can_driver = "zlg";
   };
+  
+  /**
+   * @brief 通过序列号查找设备
+   * @param serial_number 设备序列号
+   * @return canfd_id，如果未找到返回-1
+   */
+  static int FindCanfdIdBySerialNumber(const std::string& serial_number);
+  
+  /**
+   * @brief 通过序列号列表批量查找设备（只扫描一次）
+   * @param serial_numbers 序列号列表
+   * @return canfd_id列表，未找到的返回-1
+   */
+  static std::vector<int> FindCanfdIdsBySerialNumbers(const std::vector<std::string>& serial_numbers);
 
  public:
   explicit AgibotHandCanO10(unsigned char canfd_id, unsigned char channel_id = 0);

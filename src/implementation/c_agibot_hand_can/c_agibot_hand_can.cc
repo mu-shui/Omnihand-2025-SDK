@@ -56,6 +56,14 @@ AgibotHandCanO10::AgibotHandCanO10(unsigned char canfd_id, unsigned char channel
   canfd_device_->SetMsgMatchJudge(std::bind(&AgibotHandCanO10::JudgeMsgMatch, this, std::placeholders::_1, std::placeholders::_2));
 }
 
+int AgibotHandCanO10::FindCanfdIdBySerialNumber(const std::string& serial_number) {
+  return ZlgUsbcanfdSDK::FindDeviceBySerialNumber(serial_number);
+}
+
+std::vector<int> AgibotHandCanO10::FindCanfdIdsBySerialNumbers(const std::vector<std::string>& serial_numbers) {
+  return ZlgUsbcanfdSDK::FindDevicesBySerialNumbers(serial_numbers);
+}
+
 void AgibotHandCanO10::SetJointMotorPosi(unsigned char joint_motor_index, int16_t posi) {
   if (joint_motor_index > 0 && joint_motor_index <= DEGREE_OF_FREEDOM) {
     UnCanId unCanId{};
