@@ -1,0 +1,64 @@
+running egg_info
+creating ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info
+writing ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/PKG-INFO
+writing dependency_links to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/dependency_links.txt
+writing entry points to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/entry_points.txt
+writing requirements to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/requires.txt
+writing top-level names to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/top_level.txt
+writing manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+reading manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+writing manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+copying hand_arm_task_runner/playback_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+copying hand_arm_task_runner/joint_state_reader.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+copying hand_arm_task_runner/record_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+copying hand_arm_task_runner/models.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+copying hand_arm_task_runner/sequence_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+copying hand_arm_task_runner/__init__.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters
+copying hand_arm_task_runner/adapters/franka_ptp_client.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters
+copying hand_arm_task_runner/adapters/omnihand_client.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters
+copying hand_arm_task_runner/adapters/__init__.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters
+running install
+running install_lib
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/playback_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters/franka_ptp_client.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters/omnihand_client.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/adapters/__init__.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/joint_state_reader.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/record_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/models.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/sequence_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/__init__.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/playback_node.py to playback_node.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters/franka_ptp_client.py to franka_ptp_client.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters/omnihand_client.py to omnihand_client.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/adapters/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/joint_state_reader.py to joint_state_reader.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/record_node.py to record_node.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/models.py to models.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/sequence_node.py to sequence_node.cpython-310.pyc
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/ament_index
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/ament_index/resource_index
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/ament_index/resource_index/packages
+copying resource/hand_arm_task_runner -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/ament_index/resource_index/packages
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner
+copying package.xml -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner
+creating /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/hook
+copying hook/ament_prefix_path.dsv -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/hook
+running install_egg_info
+Copying ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info
+running install_scripts
+Installing playback_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+Installing record_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+Installing sequence_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+writing list of installed files to '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log'

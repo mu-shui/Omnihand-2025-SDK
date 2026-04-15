@@ -1,0 +1,24 @@
+running egg_info
+writing ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/PKG-INFO
+writing dependency_links to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/dependency_links.txt
+writing entry points to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/entry_points.txt
+writing requirements to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/requires.txt
+writing top-level names to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/top_level.txt
+reading manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+writing manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+running build
+running build_py
+copying hand_arm_task_runner/sequence_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+running install
+running install_lib
+copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/sequence_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/sequence_node.py to sequence_node.cpython-310.pyc
+running install_data
+running install_egg_info
+removing '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info
+running install_scripts
+Installing playback_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+Installing record_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+Installing sequence_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+writing list of installed files to '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log'

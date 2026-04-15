@@ -1,0 +1,26 @@
+[0.849s] Invoking command in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/src/hand_arm_task_runner': PYTHONPATH=/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/hand_arm_task_runner build --build-base /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build install --record /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log --single-version-externally-managed install_data
+[1.135s] running egg_info
+[1.136s] writing ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/PKG-INFO
+[1.136s] writing dependency_links to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/dependency_links.txt
+[1.137s] writing entry points to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/entry_points.txt
+[1.137s] writing requirements to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/requires.txt
+[1.137s] writing top-level names to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/top_level.txt
+[1.138s] reading manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+[1.139s] writing manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+[1.139s] running build
+[1.139s] running build_py
+[1.139s] copying hand_arm_task_runner/sequence_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner
+[1.141s] running install
+[1.141s] running install_lib
+[1.144s] copying /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build/lib/hand_arm_task_runner/sequence_node.py -> /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner
+[1.145s] byte-compiling /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner/sequence_node.py to sequence_node.cpython-310.pyc
+[1.147s] running install_data
+[1.147s] running install_egg_info
+[1.149s] removing '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info' (and everything under it)
+[1.150s] Copying ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info
+[1.150s] running install_scripts
+[1.183s] Installing playback_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+[1.183s] Installing record_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+[1.183s] Installing sequence_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+[1.183s] writing list of installed files to '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log'
+[1.213s] Invoked command in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/src/hand_arm_task_runner' returned '0': PYTHONPATH=/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/hand_arm_task_runner build --build-base /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build install --record /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log --single-version-externally-managed install_data

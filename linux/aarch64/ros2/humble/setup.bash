@@ -43,8 +43,24 @@ if [ -f "$_AMENT_CURRENT_PREFIX/share/omnihand_2025_node_msgs/local_setup.sh" ];
 fi
 
 if [ -f "$_AMENT_CURRENT_PREFIX/share/omnihand_pro_2025_node_msgs/local_setup.sh" ]; then
-  source "$_AMENT_CURRENT_PREFIX/share/omnihand_pro_2025_node_msgs/local_setup.sh"
+    source "$_AMENT_CURRENT_PREFIX/share/omnihand_pro_2025_node_msgs/local_setup.sh"
 fi
+
+# Colcon workspace overlay (e.g. hand_arm_task_runner under ./install).
+# The SDK prefix above does not include install/; sourcing install/local_setup.bash alone
+# may not prepend AMENT (empty hooks), so we add the colcon prefix explicitly.
+_COLCON_INSTALL="$_AMENT_CURRENT_PREFIX/install"
+if [ -d "$_COLCON_INSTALL/share/ament_index" ]; then
+  # merged install layout
+  export AMENT_PREFIX_PATH="$_COLCON_INSTALL:${AMENT_PREFIX_PATH}"
+elif [ -d "$_COLCON_INSTALL/hand_arm_task_runner/share/ament_index" ]; then
+  # isolated install layout (single known overlay package)
+  export AMENT_PREFIX_PATH="$_COLCON_INSTALL/hand_arm_task_runner:${AMENT_PREFIX_PATH}"
+fi
+if [ -d "$_COLCON_INSTALL/lib/python3.10/site-packages" ]; then
+  export PYTHONPATH="$_COLCON_INSTALL/lib/python3.10/site-packages:${PYTHONPATH}"
+fi
+unset _COLCON_INSTALL
 
 # Unset temporary variable
 unset _AMENT_CURRENT_PREFIX

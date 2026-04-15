@@ -1,0 +1,3 @@
+source;share/hand_arm_task_runner/hook/pythonpath.ps1
+source;share/hand_arm_task_runner/hook/pythonpath.dsv
+source;share/hand_arm_task_runner/hook/pythonpath.sh

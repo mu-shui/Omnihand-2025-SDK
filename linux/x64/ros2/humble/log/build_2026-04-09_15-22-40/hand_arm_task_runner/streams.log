@@ -1,0 +1,23 @@
+[0.708s] Invoking command in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/src/hand_arm_task_runner': PYTHONPATH=/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/hand_arm_task_runner build --build-base /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build install --record /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log --single-version-externally-managed install_data
+[0.990s] running egg_info
+[0.990s] writing ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/PKG-INFO
+[0.990s] writing dependency_links to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/dependency_links.txt
+[0.991s] writing entry points to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/entry_points.txt
+[0.991s] writing requirements to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/requires.txt
+[0.991s] writing top-level names to ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/top_level.txt
+[0.992s] reading manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+[0.995s] writing manifest file '../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info/SOURCES.txt'
+[0.995s] running build
+[0.995s] running build_py
+[0.996s] running install
+[0.996s] running install_lib
+[0.998s] running install_data
+[0.998s] running install_egg_info
+[1.001s] removing '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info' (and everything under it)
+[1.001s] Copying ../../build/hand_arm_task_runner/hand_arm_task_runner.egg-info to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages/hand_arm_task_runner-0.1.0-py3.10.egg-info
+[1.002s] running install_scripts
+[1.025s] Installing playback_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+[1.025s] Installing record_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+[1.025s] Installing sequence_node script to /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner
+[1.026s] writing list of installed files to '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log'
+[1.054s] Invoked command in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/src/hand_arm_task_runner' returned '0': PYTHONPATH=/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/hand_arm_task_runner build --build-base /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build install --record /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/install.log --single-version-externally-managed install_data
