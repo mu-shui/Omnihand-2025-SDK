@@ -16,6 +16,11 @@ class RecordNode(Node):
         self.declare_parameter("waypoint_name", "waypoint_1")
         self.declare_parameter("output_dir", "waypoints")
         self.declare_parameter("hand_side", "left")
+        self.declare_parameter("hand_backend", "python_sdk")
+        self.declare_parameter("hand_device", "zlgcan")
+        self.declare_parameter("hand_rs485_port", "/dev/ttyUSB0")
+        self.declare_parameter("hand_zlgcan_tcp_host", "127.0.0.1")
+        self.declare_parameter("hand_zlgcan_tcp_port", 8000)
         self.declare_parameter("hand_timeout", 5.0)
         self.declare_parameter("goal_tolerance", 0.01)
         self.declare_parameter("arm_max_vel", [1.0] * 7)
@@ -25,14 +30,27 @@ class RecordNode(Node):
         waypoint_name = self.get_parameter("waypoint_name").value
         output_dir = Path(self.get_parameter("output_dir").value)
         hand_side = self.get_parameter("hand_side").value
+        hand_backend = str(self.get_parameter("hand_backend").value)
+        hand_device = str(self.get_parameter("hand_device").value)
+        hand_rs485_port = str(self.get_parameter("hand_rs485_port").value)
+        hand_zlgcan_tcp_host = str(self.get_parameter("hand_zlgcan_tcp_host").value)
+        hand_zlgcan_tcp_port = int(self.get_parameter("hand_zlgcan_tcp_port").value)
         hand_timeout = float(self.get_parameter("hand_timeout").value)
         goal_tolerance = float(self.get_parameter("goal_tolerance").value)
         arm_max_vel = [float(v) for v in self.get_parameter("arm_max_vel").value]
         joint_states_topic = self.get_parameter("joint_states_topic").value
 
-        hand_client = OmniHandClient(self, hand_side=hand_side)
+        hand_client = OmniHandClient(
+            self,
+            hand_side=hand_side,
+            backend=hand_backend,
+            device=hand_device,
+            rs485_port=hand_rs485_port,
+            zlgcan_tcp_host=hand_zlgcan_tcp_host,
+            zlgcan_tcp_port=hand_zlgcan_tcp_port,
+        )
         if not hand_client.wait_ready(timeout_sec=5.0):
-            raise RuntimeError("OmniHand services not ready")
+            raise RuntimeError("OmniHand backend is not ready")
 
         arm_reader = JointStateReader(self, topic=joint_states_topic, arm_dof=7)
         self.get_logger().info("Reading current arm joints from joint_states...")

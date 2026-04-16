@@ -1,0 +1,5 @@
+name: plan_1
+tasks:
+- task_1
+task_reset_enabled: true
+end_reset_enabled: true

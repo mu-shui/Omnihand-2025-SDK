@@ -1,0 +1,14 @@
+name: "\u5B8C\u5168\u95ED\u5408\u538B\u529B\u6D4B\u8BD5"
+steps:
+- waypoint: "\u98DF\u6307\u5B8C\u5168\u95ED\u5408\u538B\u529B\u6D4B\u8BD5"
+  hold_sec: 3.0
+  hand_reset_enabled: true
+- waypoint: "\u4E2D\u6307\u5B8C\u5168\u95ED\u5408\u538B\u529B\u6D4B\u8BD5"
+  hold_sec: 3.0
+  hand_reset_enabled: true
+- waypoint: "\u65E0\u540D\u6307\u5B8C\u5168\u95ED\u5408\u538B\u529B\u6D4B\u8BD5"
+  hold_sec: 3.0
+  hand_reset_enabled: true
+- waypoint: "\u5C0F\u62C7\u6307\u5B8C\u5168\u95ED\u5408\u538B\u529B\u6D4B\u8BD5"
+  hold_sec: 3.0
+  hand_reset_enabled: true

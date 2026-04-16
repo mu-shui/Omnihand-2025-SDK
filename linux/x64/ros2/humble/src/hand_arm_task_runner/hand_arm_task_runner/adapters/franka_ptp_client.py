@@ -21,14 +21,23 @@ class FrankaPTPClient:
         arm_joints: Sequence[float],
         max_joint_velocities: Sequence[float],
         goal_tolerance: float,
+        goal_accept_timeout_sec: float = 5.0,
+        result_timeout_sec: float = 30.0,
     ) -> None:
+        if not self.wait_ready(timeout_sec=1.0):
+            raise RuntimeError("PTPMotion action server is not ready")
+
         goal = PTPMotion.Goal()
         goal.goal_joint_configuration = [float(v) for v in arm_joints]
         goal.maximum_joint_velocities = [float(v) for v in max_joint_velocities]
         goal.goal_tolerance = float(goal_tolerance)
 
         goal_future = self._action_client.send_goal_async(goal)
-        rclpy.spin_until_future_complete(self._node, goal_future)
+        rclpy.spin_until_future_complete(self._node, goal_future, timeout_sec=goal_accept_timeout_sec)
+        if not goal_future.done():
+            raise TimeoutError(
+                f"PTPMotion goal acceptance timeout after {goal_accept_timeout_sec:.1f}s"
+            )
         goal_handle = goal_future.result()
         if goal_handle is None:
             raise RuntimeError("PTPMotion goal call failed")
@@ -36,7 +45,11 @@ class FrankaPTPClient:
             raise RuntimeError("PTPMotion goal rejected")
 
         result_future = goal_handle.get_result_async()
-        rclpy.spin_until_future_complete(self._node, result_future)
+        rclpy.spin_until_future_complete(self._node, result_future, timeout_sec=result_timeout_sec)
+        if not result_future.done():
+            raise TimeoutError(
+                f"PTPMotion result timeout after {result_timeout_sec:.1f}s"
+            )
         wrapped = result_future.result()
         if wrapped is None:
             raise RuntimeError("PTPMotion result call failed")

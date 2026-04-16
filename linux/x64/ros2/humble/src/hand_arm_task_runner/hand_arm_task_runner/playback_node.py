@@ -15,6 +15,11 @@ class PlaybackNode(Node):
         super().__init__("hand_arm_playback_node")
         self.declare_parameter("waypoint_file", "waypoints/waypoint_1.yaml")
         self.declare_parameter("hand_side", "left")
+        self.declare_parameter("hand_backend", "python_sdk")
+        self.declare_parameter("hand_device", "zlgcan")
+        self.declare_parameter("hand_rs485_port", "/dev/ttyUSB0")
+        self.declare_parameter("hand_zlgcan_tcp_host", "127.0.0.1")
+        self.declare_parameter("hand_zlgcan_tcp_port", 8000)
         self.declare_parameter("franka_action_name", "action_server/ptp_motion")
         self.declare_parameter("dry_run", False)
         self.declare_parameter("arm_velocity_scale", 1.0)
@@ -22,6 +27,11 @@ class PlaybackNode(Node):
     def run_once(self) -> None:
         waypoint_file = Path(self.get_parameter("waypoint_file").value)
         hand_side = self.get_parameter("hand_side").value
+        hand_backend = str(self.get_parameter("hand_backend").value)
+        hand_device = str(self.get_parameter("hand_device").value)
+        hand_rs485_port = str(self.get_parameter("hand_rs485_port").value)
+        hand_zlgcan_tcp_host = str(self.get_parameter("hand_zlgcan_tcp_host").value)
+        hand_zlgcan_tcp_port = int(self.get_parameter("hand_zlgcan_tcp_port").value)
         action_name = self.get_parameter("franka_action_name").value
         dry_run = bool(self.get_parameter("dry_run").value)
         arm_velocity_scale = float(self.get_parameter("arm_velocity_scale").value)
@@ -39,9 +49,17 @@ class PlaybackNode(Node):
         if not arm_client.wait_ready(timeout_sec=5.0):
             raise RuntimeError("Franka PTP action server not ready")
 
-        hand_client = OmniHandClient(self, hand_side=hand_side)
+        hand_client = OmniHandClient(
+            self,
+            hand_side=hand_side,
+            backend=hand_backend,
+            device=hand_device,
+            rs485_port=hand_rs485_port,
+            zlgcan_tcp_host=hand_zlgcan_tcp_host,
+            zlgcan_tcp_port=hand_zlgcan_tcp_port,
+        )
         if not hand_client.wait_ready(timeout_sec=5.0):
-            raise RuntimeError("OmniHand services not ready")
+            raise RuntimeError("OmniHand backend is not ready")
 
         self.get_logger().info("Executing arm motion...")
         scaled_vel = [v * arm_velocity_scale for v in waypoint.arm_max_vel]

@@ -23,6 +23,7 @@ setup(
             "record_node = hand_arm_task_runner.record_node:main",
             "playback_node = hand_arm_task_runner.playback_node:main",
             "sequence_node = hand_arm_task_runner.sequence_node:main",
+            "gui_app = hand_arm_task_runner.gui_app:main",
         ],
     },
 )

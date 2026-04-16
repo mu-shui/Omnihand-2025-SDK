@@ -26,6 +26,11 @@ class SequenceNode(Node):
         self.declare_parameter("sequence_file", "sequences/task_1.yaml")
         self.declare_parameter("waypoints_dir", "waypoints")
         self.declare_parameter("hand_side", "left")
+        self.declare_parameter("hand_backend", "python_sdk")
+        self.declare_parameter("hand_device", "zlgcan")
+        self.declare_parameter("hand_rs485_port", "/dev/ttyUSB0")
+        self.declare_parameter("hand_zlgcan_tcp_host", "127.0.0.1")
+        self.declare_parameter("hand_zlgcan_tcp_port", 8000)
         self.declare_parameter("franka_action_name", "action_server/ptp_motion")
         self.declare_parameter("dry_run", False)
         self.declare_parameter("inter_step_delay_sec", 0.0)
@@ -82,6 +87,11 @@ class SequenceNode(Node):
             f"waypoints_dir={waypoints_dir} -> {waypoints_dir.resolve()}"
         )
         hand_side = self.get_parameter("hand_side").value
+        hand_backend = str(self.get_parameter("hand_backend").value)
+        hand_device = str(self.get_parameter("hand_device").value)
+        hand_rs485_port = str(self.get_parameter("hand_rs485_port").value)
+        hand_zlgcan_tcp_host = str(self.get_parameter("hand_zlgcan_tcp_host").value)
+        hand_zlgcan_tcp_port = int(self.get_parameter("hand_zlgcan_tcp_port").value)
         action_name = self.get_parameter("franka_action_name").value
         dry_run = bool(self.get_parameter("dry_run").value)
         inter_step_delay_sec = float(self.get_parameter("inter_step_delay_sec").value)
@@ -111,9 +121,17 @@ class SequenceNode(Node):
         arm_client = FrankaPTPClient(self, action_name=action_name)
         if not arm_client.wait_ready(timeout_sec=5.0):
             raise RuntimeError("Franka PTP action server not ready")
-        hand_client = OmniHandClient(self, hand_side=hand_side)
+        hand_client = OmniHandClient(
+            self,
+            hand_side=hand_side,
+            backend=hand_backend,
+            device=hand_device,
+            rs485_port=hand_rs485_port,
+            zlgcan_tcp_host=hand_zlgcan_tcp_host,
+            zlgcan_tcp_port=hand_zlgcan_tcp_port,
+        )
         if not hand_client.wait_ready(timeout_sec=5.0):
-            raise RuntimeError("OmniHand services not ready")
+            raise RuntimeError("OmniHand backend is not ready")
 
         run_id = f"run-{int(time.time())}"
         self._send_tcp_event(

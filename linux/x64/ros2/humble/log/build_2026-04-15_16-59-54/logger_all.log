@@ -1,0 +1,439 @@
+[0.110s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'hand_arm_task_runner', '--merge-install', '--symlink-install']
+[0.110s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=True, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=18, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['hand_arm_task_runner'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x761855f47f40>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x761855f479d0>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x761855f479d0>>, mixin_verb=('build',))
+[0.401s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.401s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.401s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.401s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.401s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.402s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.402s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble'
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.402s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extensions ['ignore', 'ignore_ament_install']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'ignore'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'ignore_ament_install'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extensions ['colcon_pkg']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'colcon_pkg'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extensions ['colcon_meta']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'colcon_meta'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extensions ['ros']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'ros'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extensions ['cmake', 'python']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'cmake'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'python'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extensions ['python_setup_py']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib) by extension 'python_setup_py'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extensions ['ignore', 'ignore_ament_install']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'ignore'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'ignore_ament_install'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extensions ['colcon_pkg']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'colcon_pkg'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extensions ['colcon_meta']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'colcon_meta'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extensions ['ros']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'ros'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extensions ['cmake', 'python']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'cmake'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'python'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extensions ['python_setup_py']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(lib/omnihand_node) by extension 'python_setup_py'
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extensions ['ignore', 'ignore_ament_install']
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'ignore'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'ignore_ament_install'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extensions ['colcon_pkg']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'colcon_pkg'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extensions ['colcon_meta']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'colcon_meta'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extensions ['ros']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'ros'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extensions ['cmake', 'python']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'cmake'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'python'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extensions ['python_setup_py']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10) by extension 'python_setup_py'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extensions ['ignore', 'ignore_ament_install']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'ignore'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'ignore_ament_install'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extensions ['colcon_pkg']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'colcon_pkg'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extensions ['colcon_meta']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'colcon_meta'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extensions ['ros']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'ros'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extensions ['cmake', 'python']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'cmake'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'python'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extensions ['python_setup_py']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages) by extension 'python_setup_py'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'ignore'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'ignore_ament_install'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extensions ['colcon_pkg']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'colcon_pkg'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extensions ['colcon_meta']
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'colcon_meta'
+[0.448s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extensions ['ros']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'ros'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extensions ['cmake', 'python']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'cmake'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'python'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extensions ['python_setup_py']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs) by extension 'python_setup_py'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extensions ['ignore', 'ignore_ament_install']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'ignore'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'ignore_ament_install'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extensions ['colcon_pkg']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'colcon_pkg'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extensions ['colcon_meta']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'colcon_meta'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extensions ['ros']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'ros'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extensions ['cmake', 'python']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'cmake'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'python'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extensions ['python_setup_py']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/__pycache__) by extension 'python_setup_py'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extensions ['ignore', 'ignore_ament_install']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'ignore'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'ignore_ament_install'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extensions ['colcon_pkg']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'colcon_pkg'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extensions ['colcon_meta']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'colcon_meta'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extensions ['ros']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'ros'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extensions ['cmake', 'python']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'cmake'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'python'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extensions ['python_setup_py']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg) by extension 'python_setup_py'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extensions ['ignore', 'ignore_ament_install']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'ignore'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'ignore_ament_install'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extensions ['colcon_pkg']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'colcon_pkg'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extensions ['colcon_meta']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'colcon_meta'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extensions ['ros']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'ros'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extensions ['cmake', 'python']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'cmake'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'python'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extensions ['python_setup_py']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/msg/__pycache__) by extension 'python_setup_py'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extensions ['ignore', 'ignore_ament_install']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'ignore'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'ignore_ament_install'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extensions ['colcon_pkg']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'colcon_pkg'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extensions ['colcon_meta']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'colcon_meta'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extensions ['ros']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'ros'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extensions ['cmake', 'python']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'cmake'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'python'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extensions ['python_setup_py']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv) by extension 'python_setup_py'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extensions ['ignore', 'ignore_ament_install']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'ignore'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'ignore_ament_install'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extensions ['colcon_pkg']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'colcon_pkg'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extensions ['colcon_meta']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'colcon_meta'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extensions ['ros']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'ros'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extensions ['cmake', 'python']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'cmake'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'python'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extensions ['python_setup_py']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_2025_node_msgs/srv/__pycache__) by extension 'python_setup_py'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'ignore'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'ignore_ament_install'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extensions ['colcon_pkg']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'colcon_pkg'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extensions ['colcon_meta']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'colcon_meta'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extensions ['ros']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'ros'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extensions ['cmake', 'python']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'cmake'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'python'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extensions ['python_setup_py']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs) by extension 'python_setup_py'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extensions ['ignore', 'ignore_ament_install']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'ignore'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'ignore_ament_install'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extensions ['colcon_pkg']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'colcon_pkg'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extensions ['colcon_meta']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'colcon_meta'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extensions ['ros']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'ros'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extensions ['cmake', 'python']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'cmake'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'python'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extensions ['python_setup_py']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/msg) by extension 'python_setup_py'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extensions ['ignore', 'ignore_ament_install']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'ignore'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'ignore_ament_install'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extensions ['colcon_pkg']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'colcon_pkg'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extensions ['colcon_meta']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'colcon_meta'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extensions ['ros']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'ros'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extensions ['cmake', 'python']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'cmake'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'python'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extensions ['python_setup_py']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(lib/python3.10/site-packages/omnihand_pro_2025_node_msgs/srv) by extension 'python_setup_py'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extensions ['ignore', 'ignore_ament_install']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'ignore'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'ignore_ament_install'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extensions ['colcon_pkg']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'colcon_pkg'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extensions ['colcon_meta']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'colcon_meta'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extensions ['ros']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'ros'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extensions ['cmake', 'python']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'cmake'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'python'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extensions ['python_setup_py']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(sequences) by extension 'python_setup_py'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extensions ['ignore', 'ignore_ament_install']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'ignore'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'ignore_ament_install'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extensions ['colcon_pkg']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'colcon_pkg'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extensions ['colcon_meta']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'colcon_meta'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extensions ['ros']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'ros'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extensions ['cmake', 'python']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'cmake'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'python'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extensions ['python_setup_py']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share) by extension 'python_setup_py'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extensions ['ignore', 'ignore_ament_install']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'ignore'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'ignore_ament_install'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extensions ['colcon_pkg']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'colcon_pkg'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extensions ['colcon_meta']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'colcon_meta'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extensions ['ros']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'ros'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extensions ['cmake', 'python']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'cmake'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'python'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extensions ['python_setup_py']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index) by extension 'python_setup_py'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extensions ['ignore', 'ignore_ament_install']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'ignore'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'ignore_ament_install'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extensions ['colcon_pkg']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'colcon_pkg'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extensions ['colcon_meta']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'colcon_meta'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extensions ['ros']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'ros'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extensions ['cmake', 'python']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'cmake'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'python'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extensions ['python_setup_py']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index) by extension 'python_setup_py'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extensions ['ignore', 'ignore_ament_install']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'ignore'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'ignore_ament_install'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extensions ['colcon_pkg']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'colcon_pkg'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extensions ['colcon_meta']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'colcon_meta'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extensions ['ros']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'ros'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extensions ['cmake', 'python']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'cmake'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'python'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extensions ['python_setup_py']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/ament_index/resource_index/packages) by extension 'python_setup_py'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extension 'ignore'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extension 'ignore_ament_install'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extensions ['colcon_pkg']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extension 'colcon_pkg'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extensions ['colcon_meta']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extension 'colcon_meta'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extensions ['ros']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_2025_node_msgs) by extension 'ros'
+[0.460s] DEBUG:colcon.colcon_core.package_identification:Package 'share/omnihand_2025_node_msgs' with type 'ros.ament_cmake' and name 'omnihand_2025_node_msgs'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extensions ['ignore', 'ignore_ament_install']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extension 'ignore'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extension 'ignore_ament_install'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extensions ['colcon_pkg']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extension 'colcon_pkg'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extensions ['colcon_meta']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extension 'colcon_meta'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extensions ['ros']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_node) by extension 'ros'
+[0.461s] DEBUG:colcon.colcon_core.package_identification:Package 'share/omnihand_node' with type 'ros.ament_cmake' and name 'omnihand_node'
+[0.461s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.461s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extension 'ignore'
+[0.461s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extension 'ignore_ament_install'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extensions ['colcon_pkg']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extension 'colcon_pkg'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extensions ['colcon_meta']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extension 'colcon_meta'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extensions ['ros']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(share/omnihand_pro_2025_node_msgs) by extension 'ros'
+[0.462s] DEBUG:colcon.colcon_core.package_identification:Package 'share/omnihand_pro_2025_node_msgs' with type 'ros.ament_cmake' and name 'omnihand_pro_2025_node_msgs'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extensions ['ignore', 'ignore_ament_install']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'ignore'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'ignore_ament_install'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extensions ['colcon_pkg']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'colcon_pkg'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extensions ['colcon_meta']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'colcon_meta'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extensions ['ros']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'ros'
+[0.463s] DEBUG:colcon.colcon_core.package_identification:Failed to parse potential ROS package manifest in'src/hand_arm_task_runner': Error(s) in package 'src/hand_arm_task_runner/package.xml':
+Invalid email "agiuser@localhost" for person "agiuser"
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extensions ['cmake', 'python']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'cmake'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'python'
+[0.463s] DEBUG:colcon.colcon_core.package_identification:Python package in 'src/hand_arm_task_runner' passes arguments to the setup() function which requires a different identification extension than 'python'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extensions ['python_setup_py']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(src/hand_arm_task_runner) by extension 'python_setup_py'
+[0.770s] DEBUG:colcon.colcon_core.package_identification:Package 'src/hand_arm_task_runner' with type 'python' and name 'hand_arm_task_runner'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extensions ['ignore', 'ignore_ament_install']
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'ignore'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'ignore_ament_install'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extensions ['colcon_pkg']
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'colcon_pkg'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extensions ['colcon_meta']
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'colcon_meta'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extensions ['ros']
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'ros'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extensions ['cmake', 'python']
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'cmake'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'python'
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extensions ['python_setup_py']
+[0.770s] Level 1:colcon.colcon_core.package_identification:_identify(waypoints) by extension 'python_setup_py'
+[0.770s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.770s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.770s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.770s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.770s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.799s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'omnihand_2025_node_msgs' in 'share/omnihand_2025_node_msgs'
+[0.799s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'omnihand_pro_2025_node_msgs' in 'share/omnihand_pro_2025_node_msgs'
+[0.799s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'omnihand_node' in 'share/omnihand_node'
+[0.799s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.799s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.800s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble' in the environment variable AMENT_PREFIX_PATH doesn't contain any 'local_setup.*' files.
+[0.802s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 14 installed packages in /home/agiuser/franka_ros2_ws/install
+[0.802s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 1 installed packages in /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install
+[0.806s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 345 installed packages in /opt/ros/humble
+[0.808s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.892s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'cmake_args' from command line to 'None'
+[0.892s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'cmake_target' from command line to 'None'
+[0.892s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.892s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'cmake_clean_cache' from command line to 'False'
+[0.892s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'cmake_clean_first' from command line to 'False'
+[0.893s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'cmake_force_configure' from command line to 'False'
+[0.893s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'ament_cmake_args' from command line to 'None'
+[0.893s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'catkin_cmake_args' from command line to 'None'
+[0.893s] Level 5:colcon.colcon_core.verb:set package 'hand_arm_task_runner' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.893s] DEBUG:colcon.colcon_core.verb:Building package 'hand_arm_task_runner' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install', 'merge_install': True, 'path': '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/src/hand_arm_task_runner', 'symlink_install': True, 'test_result_base': None}
+[0.893s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.894s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.894s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/src/hand_arm_task_runner'
+[0.900s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.900s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.900s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.640s] DEBUG:colcon.colcon_core.task.python.build:While undoing a previous installation files outside the Python library path are being ignored: /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/ament_index/resource_index/packages/hand_arm_task_runner
+[1.640s] DEBUG:colcon.colcon_core.task.python.build:While undoing a previous installation files outside the Python library path are being ignored: /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/package.xml
+[1.640s] DEBUG:colcon.colcon_core.task.python.build:While undoing a previous installation files outside the Python library path are being ignored: /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/hook/ament_prefix_path.dsv
+[1.641s] DEBUG:colcon.colcon_core.task.python.build:While undoing a previous installation files outside the Python library path are being ignored: /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner/playback_node
+[1.641s] DEBUG:colcon.colcon_core.task.python.build:While undoing a previous installation files outside the Python library path are being ignored: /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner/record_node
+[1.641s] DEBUG:colcon.colcon_core.task.python.build:While undoing a previous installation files outside the Python library path are being ignored: /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/hand_arm_task_runner/sequence_node
+[1.647s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner': PYTHONPATH=/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build --no-deps symlink_data --force
+[2.158s] Level 1:colcon.colcon_core.shell:create_environment_hook('hand_arm_task_runner', 'pythonpath_develop')
+[2.160s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/share/hand_arm_task_runner/hook/pythonpath_develop.ps1'
+[2.160s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner' returned '0': PYTHONPATH=/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/build --no-deps symlink_data --force
+[2.162s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/share/hand_arm_task_runner/hook/pythonpath_develop.dsv'
+[2.162s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/build/hand_arm_task_runner/share/hand_arm_task_runner/hook/pythonpath_develop.sh'
+[2.165s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install' for CMake module files
+[2.165s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install' for CMake config files
+[2.166s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib'
+[2.166s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/bin'
+[2.166s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/pkgconfig/hand_arm_task_runner.pc'
+[2.166s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/lib/python3.10/site-packages'
+[2.166s] Level 1:colcon.colcon_core.shell:create_environment_hook('hand_arm_task_runner', 'pythonpath')
+[2.167s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/hook/pythonpath.ps1'
+[2.167s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/hook/pythonpath.dsv'
+[2.168s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/hook/pythonpath.sh'
+[2.168s] Level 1:colcon.colcon_core.environment:checking '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/bin'
+[2.168s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(hand_arm_task_runner)
+[2.170s] INFO:colcon.colcon_core.shell:Creating package script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/package.ps1'
+[2.171s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/package.dsv'
+[2.172s] INFO:colcon.colcon_core.shell:Creating package script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/package.sh'
+[2.172s] INFO:colcon.colcon_core.shell:Creating package script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/package.bash'
+[2.173s] INFO:colcon.colcon_core.shell:Creating package script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/hand_arm_task_runner/package.zsh'
+[2.176s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/share/colcon-core/packages/hand_arm_task_runner)
+[2.176s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[2.177s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[2.177s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[2.177s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[2.180s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[2.181s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[2.181s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[2.195s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[2.195s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/local_setup.ps1'
+[2.196s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/_local_setup_util_ps1.py'
+[2.198s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/setup.ps1'
+[2.199s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/local_setup.sh'
+[2.199s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/_local_setup_util_sh.py'
+[2.200s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/setup.sh'
+[2.201s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/local_setup.bash'
+[2.201s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/setup.bash'
+[2.203s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/local_setup.zsh'
+[2.205s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/agiuser/Omnihand-2025-SDK/linux/x64/ros2/humble/install/setup.zsh'
