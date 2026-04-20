@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import queue
 import shutil
@@ -38,12 +39,21 @@ except ImportError:
     AgibotHandO10 = None
     EHandType = None
 
+try:
+    from omnihand.omnihand_2025 import OmniHand2025Solver
+except ImportError:
+    OmniHand2025Solver = None
+
 
 @dataclass
 class TaskStep:
     waypoint: str
     hold_sec: float = 3.0
     hand_reset_enabled: bool = True
+
+
+class PauseTestCancelledError(RuntimeError):
+    """Raised when pause-test flow requests cancellation."""
 
 
 class RobotExecutor:
@@ -53,6 +63,7 @@ class RobotExecutor:
         self._arm: FrankaPTPClient | None = None
         self._hand: OmniHandClient | None = None
         self._arm_reader: JointStateReader | None = None
+        self._arm_motion_guard = threading.Lock()
 
     def _ensure_node(self) -> Node:
         if not rclpy.ok():
@@ -114,12 +125,72 @@ class RobotExecutor:
         self._ensure_arm_client()
         self._ensure_hand_client()
 
-    def record_waypoint(self, name: str, note: str) -> Path:
+    def reset_hand_client(self) -> None:
+        # Raw hand close/open may reset CAN resources; force recreate on next use.
+        self._hand = None
+
+    def _arm_settle_sleep(self, context: str = "arm motion") -> None:
+        try:
+            settle_sec = max(0.0, float(self.app.arm_motion_settle_sec_var.get()))
+        except Exception:
+            settle_sec = 1.0
+        if settle_sec > 0:
+            self.app.log_control(f"{context}: 等待机械臂稳定 {settle_sec:.2f}s")
+            time.sleep(settle_sec)
+
+    def _send_arm_goal_guarded(
+        self,
+        *,
+        context: str,
+        arm_joints: list[float] | tuple[float, ...],
+        max_joint_velocities: list[float] | tuple[float, ...],
+        goal_tolerance: float,
+    ) -> None:
+        self.app.wait_for_pause_test_gate(context)
+        assert self._arm is not None
+        if not self._arm_motion_guard.acquire(blocking=False):
+            raise RuntimeError(f"{context}: 检测到已有机械臂 motion 正在执行，已拒绝新的 motion 请求。")
+        try:
+            self.app.log_arm(f"{context}: 提交PTPMotion目标")
+            self._arm.send_goal_and_wait(arm_joints, max_joint_velocities, goal_tolerance)
+        finally:
+            self._arm_motion_guard.release()
+
+    def _set_hand_angles(self, target_angles: list[float], timeout: float, context: str = "hand") -> list[float]:
+        # If manual raw-hand is active, drive hand through raw-hand path to avoid CAN conflicts.
+        if bool(getattr(self.app, "raw_hand_connected", False)):
+            hand = self.app._ensure_raw_hand()
+            solver = self.app._get_raw_hand_solver()
+            actuator_positions = solver.active_joint_pos_to_actuator_input([float(v) for v in target_angles])
+            if len(actuator_positions) < 10:
+                raise RuntimeError(f"{context}: 目标转换失败，位置数量异常 {len(actuator_positions)}")
+            send_results: list[object] = []
+            for i, pos in enumerate(actuator_positions[:10], start=1):
+                send_results.append(hand.set_joint_position(i, int(pos)))
+            if any(self.app._is_hand_send_failed(v) for v in send_results):
+                raise RuntimeError(f"{context}: raw_hand 下发失败（可能CAN总线异常）")
+            # Keep GUI sliders in sync with target when this path is used.
+            self.app.root.after(0, lambda vals=list(actuator_positions[:10]): [self.app.hand_pos_vars[i].set(int(vals[i])) for i in range(10)])
+            return [float(v) for v in target_angles]
+
         self._ensure_hand_client()
+        assert self._hand is not None
+        return self._hand.set_joint_angles(target_angles, timeout=timeout)
+
+    def _read_hand_angles_for_capture(self) -> list[float]:
+        # 手动手控模式下记录“目标值”而不是“反馈值”，避免被夹持/卡住时记录到错误姿态。
+        if bool(getattr(self.app, "raw_hand_connected", False)):
+            return self.app._get_raw_hand_target_angles_from_sliders()
+        self._ensure_hand_client()
+        assert self._hand is not None
+        vals = self._hand.get_joint_angles()
+        return self.app._validate_hand_feedback(vals, min_len=10)
+
+    def record_waypoint(self, name: str, note: str) -> Path:
         self._ensure_arm_reader()
-        assert self._arm_reader is not None and self._hand is not None
+        assert self._arm_reader is not None
         arm_joints = self._arm_reader.get_arm_joints(timeout_sec=3.0)
-        hand_joints = self._hand.get_joint_angles()
+        hand_joints = self._read_hand_angles_for_capture()
         wp = Waypoint(
             name=name,
             arm_joints=arm_joints,
@@ -136,11 +207,10 @@ class RobotExecutor:
         return path
 
     def set_home_from_current(self) -> Path:
-        self._ensure_hand_client()
         self._ensure_arm_reader()
-        assert self._arm_reader is not None and self._hand is not None
+        assert self._arm_reader is not None
         arm_joints = self._arm_reader.get_arm_joints(timeout_sec=3.0)
-        hand_joints = self._hand.get_joint_angles()
+        hand_joints = self._read_hand_angles_for_capture()
         home = {
             "name": "home",
             "arm_joints": arm_joints,
@@ -166,15 +236,28 @@ class RobotExecutor:
         return Waypoint.from_dict(read_yaml(path))
 
     def _go_home(self, home: Waypoint) -> None:
-        assert self._arm is not None and self._hand is not None
+        assert self._arm is not None
+        self.app.log_hand("回初始位: hand -> home")
+        self._set_hand_angles(home.hand_joints, timeout=home.hand_timeout, context="回初始位")
+        try:
+            settle_sec = max(0.0, float(self.app.home_hand_settle_sec_var.get()))
+        except Exception:
+            settle_sec = 1.0
+        if settle_sec > 0:
+            self.app.log_control(f"回初始位: 等待手稳定 {settle_sec:.2f}s")
+            time.sleep(settle_sec)
         self.app.log_control(f"回初始位: arm -> {home.arm_joints}")
         arm_scale = max(0.01, min(1.0, float(self.app.arm_velocity_scale_var.get())))
         scaled_vel = [float(v) * arm_scale for v in home.arm_max_vel]
-        self._arm.send_goal_and_wait(home.arm_joints, scaled_vel, home.goal_tolerance)
-        self.app.log_hand("回初始位: hand -> home")
-        self._hand.set_joint_angles(home.hand_joints, timeout=home.hand_timeout)
+        self._send_arm_goal_guarded(
+            context="回初始位",
+            arm_joints=home.arm_joints,
+            max_joint_velocities=scaled_vel,
+            goal_tolerance=home.goal_tolerance,
+        )
+        self._arm_settle_sleep("回初始位")
 
-    def execute_task(self, task_name: str, go_home_before: bool = True) -> None:
+    def execute_task(self, task_name: str, go_home_before: bool = True, go_home_after: bool = True) -> None:
         self._ensure_clients()
         assert self._arm is not None and self._hand is not None
         home = self._load_home()
@@ -195,18 +278,25 @@ class RobotExecutor:
             self.app.log_arm(f"[任务 {task_name}] 步骤 {i}/{len(steps)} arm -> {wp_name}")
             arm_scale = max(0.01, min(1.0, float(self.app.arm_velocity_scale_var.get())))
             scaled_vel = [float(v) * arm_scale for v in wp.arm_max_vel]
-            self._arm.send_goal_and_wait(wp.arm_joints, scaled_vel, wp.goal_tolerance)
+            self._send_arm_goal_guarded(
+                context=f"[任务 {task_name}] 步骤 {i}/{len(steps)} arm",
+                arm_joints=wp.arm_joints,
+                max_joint_velocities=scaled_vel,
+                goal_tolerance=wp.goal_tolerance,
+            )
+            self._arm_settle_sleep(f"[任务 {task_name}] 步骤 {i} arm")
             self.app.log_hand(f"[任务 {task_name}] 步骤 {i}/{len(steps)} hand -> {wp_name}")
-            self._hand.set_joint_angles(wp.hand_joints, timeout=wp.hand_timeout)
+            self._set_hand_angles(wp.hand_joints, timeout=wp.hand_timeout, context=f"[任务 {task_name}] 步骤 {i} hand")
             if hold_sec > 0:
                 self.app.log_control(f"[任务 {task_name}] 停留 {hold_sec:.2f}s")
                 time.sleep(hold_sec)
             if hand_reset_enabled:
                 self.app.log_hand(f"[任务 {task_name}] 手回位")
-                self._hand.set_joint_angles(home.hand_joints, timeout=home.hand_timeout)
-        # User requirement: executing a single task should also return to home at the end.
-        self.app.log_control(f"[任务 {task_name}] 结束后自动回初始位")
-        self._go_home(home)
+                self._set_hand_angles(home.hand_joints, timeout=home.hand_timeout, context=f"[任务 {task_name}] 手回位")
+        if go_home_after:
+            # User requirement: executing a single task should also return to home at the end.
+            self.app.log_control(f"[任务 {task_name}] 结束后自动回初始位")
+            self._go_home(home)
         self.app.log_control(f"[任务 {task_name}] 执行完成")
 
     def execute_plan(self, plan_name: str) -> None:
@@ -220,13 +310,53 @@ class RobotExecutor:
         task_reset_enabled = bool(raw.get("task_reset_enabled", True))
         end_reset_enabled = bool(raw.get("end_reset_enabled", True))
 
-        self.app.log_control(f"[计划 {plan_name}] 开始，先回初始位")
-        self._go_home(home)
+        if not task_reset_enabled:
+            self.app.log_control(f"[计划 {plan_name}] 开始，先回初始位")
+            self._go_home(home)
         for idx, task_name in enumerate(task_names, start=1):
             if task_reset_enabled:
                 self.app.log_control(f"[计划 {plan_name}] 任务 {idx}/{len(task_names)} 前回初始位")
                 self._go_home(home)
-            self.execute_task(task_name, go_home_before=not task_reset_enabled)
+            task_path = self.app.tasks_dir() / f"{task_name}.yaml"
+            task_raw = read_yaml(task_path)
+            steps = task_raw.get("steps", [])
+            if not steps:
+                raise RuntimeError(f"Task has no steps: {task_name}")
+            for step_idx, step in enumerate(steps, start=1):
+                wp_name = str(step["waypoint"])
+                hold_sec = float(step.get("hold_sec", 3.0))
+                hand_reset_enabled = bool(step.get("hand_reset_enabled", True))
+                wp = self._load_waypoint(wp_name)
+                self.app.log_arm(
+                    f"[计划 {plan_name}] 任务 {idx}/{len(task_names)} 步骤 {step_idx}/{len(steps)} arm -> {wp_name}"
+                )
+                arm_scale = max(0.01, min(1.0, float(self.app.arm_velocity_scale_var.get())))
+                scaled_vel = [float(v) * arm_scale for v in wp.arm_max_vel]
+                self._send_arm_goal_guarded(
+                    context=f"[计划 {plan_name}] 任务 {idx}/{len(task_names)} 步骤 {step_idx}/{len(steps)} arm",
+                    arm_joints=wp.arm_joints,
+                    max_joint_velocities=scaled_vel,
+                    goal_tolerance=wp.goal_tolerance,
+                )
+                self._arm_settle_sleep(f"[计划 {plan_name}] 任务 {idx} 步骤 {step_idx} arm")
+                self.app.log_hand(
+                    f"[计划 {plan_name}] 任务 {idx}/{len(task_names)} 步骤 {step_idx}/{len(steps)} hand -> {wp_name}"
+                )
+                self._set_hand_angles(
+                    wp.hand_joints,
+                    timeout=wp.hand_timeout,
+                    context=f"[计划 {plan_name}] 任务 {idx} 步骤 {step_idx} hand",
+                )
+                if hold_sec > 0:
+                    self.app.log_control(f"[计划 {plan_name}] 任务 {idx} 步骤 {step_idx} 停留 {hold_sec:.2f}s")
+                    time.sleep(hold_sec)
+                if hand_reset_enabled:
+                    self.app.log_hand(f"[计划 {plan_name}] 任务 {idx} 步骤 {step_idx} 手回位")
+                    self._set_hand_angles(
+                        home.hand_joints,
+                        timeout=home.hand_timeout,
+                        context=f"[计划 {plan_name}] 任务 {idx} 步骤 {step_idx} 手回位",
+                    )
         if end_reset_enabled:
             self.app.log_control(f"[计划 {plan_name}] 结束回初始位")
             self._go_home(home)
@@ -243,18 +373,28 @@ class RobotExecutor:
         return self._hand.set_joint_angles(angles, timeout=2.0)
 
     def move_to_waypoint(self, waypoint_name: str) -> None:
-        self._ensure_clients()
-        assert self._arm is not None and self._hand is not None
+        self._ensure_arm_client()
+        if not bool(getattr(self.app, "raw_hand_connected", False)):
+            self._ensure_hand_client()
+        assert self._arm is not None
         wp = self._load_waypoint(waypoint_name)
         self.app.log_control(f"[点位] 移动到 {waypoint_name}: arm")
         arm_scale = max(0.01, min(1.0, float(self.app.arm_velocity_scale_var.get())))
         scaled_vel = [float(v) * arm_scale for v in wp.arm_max_vel]
-        self._arm.send_goal_and_wait(wp.arm_joints, scaled_vel, wp.goal_tolerance)
+        self._send_arm_goal_guarded(
+            context=f"[点位] {waypoint_name} arm",
+            arm_joints=wp.arm_joints,
+            max_joint_velocities=scaled_vel,
+            goal_tolerance=wp.goal_tolerance,
+        )
+        self._arm_settle_sleep(f"[点位] {waypoint_name} arm")
         self.app.log_control(f"[点位] 移动到 {waypoint_name}: hand")
-        self._hand.set_joint_angles(wp.hand_joints, timeout=wp.hand_timeout)
+        self._set_hand_angles(wp.hand_joints, timeout=wp.hand_timeout, context=f"[点位] {waypoint_name} hand")
 
     def go_home_now(self) -> None:
-        self._ensure_clients()
+        self._ensure_arm_client()
+        if not bool(getattr(self.app, "raw_hand_connected", False)):
+            self._ensure_hand_client()
         home = self._load_home()
         self._go_home(home)
 
@@ -265,8 +405,18 @@ class MainApp:
         self.root.title("Hand Arm Task GUI")
         self.log_queue: queue.Queue[tuple[str, str]] = queue.Queue()
         self.running = False
+        self._run_state_lock = threading.Lock()
+        self._active_run: dict[str, object] | None = None
+        self._run_seq = 0
+        self._active_run_status_file = (Path.cwd() / "runtime" / "active_motion.json").resolve()
         self.env_initialized = False
         self.executor = RobotExecutor(self)
+        self._pause_state_lock = threading.Lock()
+        self._pause_continue_event = threading.Event()
+        self._pause_test_enabled = False
+        self._pause_cancel_requested = False
+        self._pause_waiting_context = ""
+        self._pause_waiting_since = 0.0
 
         self.hand_backend_var = StringVar(value="python_sdk")
         self.hand_device_var = StringVar(value="zlgcan")
@@ -285,6 +435,8 @@ class MainApp:
         self.current_task_file_var = StringVar(value="")
         self.current_plan_file_var = StringVar(value="")
         self.hand_monitoring_var = BooleanVar(value=False)
+        self.pause_test_enabled_var = BooleanVar(value=False)
+        self.pause_test_status_var = StringVar(value="暂停测试：关闭")
         self.env_ros_var = StringVar(value="/opt/ros/humble/setup.bash")
         self.env_sdk_var = StringVar(
             value=str((Path.cwd() / "linux/x64/ros2/humble/install/setup.bash").resolve())
@@ -294,6 +446,8 @@ class MainApp:
         self.franka_robot_ip_var = StringVar(value="192.169.0.2")
         self.auto_start_franka_var = BooleanVar(value=True)
         self.arm_velocity_scale_var = DoubleVar(value=0.2)
+        self.arm_motion_settle_sec_var = StringVar(value="1.0")
+        self.home_hand_settle_sec_var = StringVar(value="1.0")
         self.hand_joint_vars = [DoubleVar(value=0.0) for _ in range(10)]
         self.hand_pos_vars = [IntVar(value=0) for _ in range(10)]
         self.hand_joint_notes = [
@@ -311,13 +465,19 @@ class MainApp:
         self._hand_updating_from_device = False
         self._hand_send_after_id = None
         self.raw_hand = None
+        self.raw_hand_connected = False
+        self._raw_hand_solver = None
+        self._raw_hand_solver_is_left: bool | None = None
         self.raw_hand_cfg_path = "/home/agiuser/Omnihand-2025-SDK-0.8.0/python/example/conf/hardware_conf.yaml"
         self.franka_launch_proc: subprocess.Popen | None = None
         self._last_popup_time: dict[str, float] = {}
+        self._conflict_action_buttons: list[ttk.Button] = []
+        self._write_active_run_status({"running": False, "note": "GUI initialized"})
 
         self._build_ui()
         self._refresh_all_lists()
         self._poll_logs()
+        self._poll_runtime_status_panel()
 
     def waypoints_dir(self) -> Path:
         p = Path.cwd() / "point"
@@ -393,6 +553,204 @@ class MainApp:
         self._build_plan_tab()
         self._build_hand_tab()
         self._build_log_tab()
+        self._refresh_conflict_action_buttons()
+
+    def _register_conflict_action_button(self, btn: ttk.Button) -> None:
+        self._conflict_action_buttons.append(btn)
+
+    def _refresh_conflict_action_buttons(self) -> None:
+        disabled = bool(self.raw_hand_connected)
+        for btn in self._conflict_action_buttons:
+            if disabled:
+                btn.state(["disabled"])
+            else:
+                btn.state(["!disabled"])
+
+    def _refresh_conflict_action_buttons_async(self) -> None:
+        self.root.after(0, self._refresh_conflict_action_buttons)
+
+    @staticmethod
+    def _format_ts(epoch: float) -> str:
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch))
+
+    def _write_active_run_status(self, payload: dict[str, object]) -> None:
+        try:
+            self._active_run_status_file.parent.mkdir(parents=True, exist_ok=True)
+            content = dict(payload)
+            with self._pause_state_lock:
+                content["pause_test"] = {
+                    "enabled": self._pause_test_enabled,
+                    "cancel_requested": self._pause_cancel_requested,
+                    "waiting_context": self._pause_waiting_context,
+                    "waiting_since": self._format_ts(self._pause_waiting_since) if self._pause_waiting_since > 0 else "",
+                }
+            content["updated_at"] = self._format_ts(time.time())
+            tmp_path = self._active_run_status_file.with_suffix(".tmp")
+            with tmp_path.open("w", encoding="utf-8") as f:
+                json.dump(content, f, ensure_ascii=False, indent=2, sort_keys=True)
+            tmp_path.replace(self._active_run_status_file)
+        except Exception as exc:  # noqa: BLE001
+            self.log_control(f"写入运行状态文件失败: {exc}")
+
+    def _refresh_pause_test_buttons(self) -> None:
+        enabled = bool(self.pause_test_enabled_var.get())
+        can_continue = False
+        can_cancel = False
+        waiting_context = ""
+        cancel_requested = False
+        waiting_since = 0.0
+        with self._pause_state_lock:
+            waiting_context = self._pause_waiting_context
+            cancel_requested = self._pause_cancel_requested
+            waiting_since = self._pause_waiting_since
+            can_continue = enabled and bool(waiting_context)
+            can_cancel = enabled and bool(self.running)
+        if enabled:
+            if waiting_context:
+                wait_sec = max(0.0, time.time() - waiting_since)
+                self.pause_test_status_var.set(f"暂停测试：已暂停在 `{waiting_context}`（{wait_sec:.1f}s）")
+            elif cancel_requested:
+                self.pause_test_status_var.set("暂停测试：已请求取消，等待当前步骤退出")
+            else:
+                self.pause_test_status_var.set("暂停测试：开启（每个 arm motion 前将暂停）")
+        else:
+            self.pause_test_status_var.set("暂停测试：关闭")
+        if can_continue:
+            self.btn_pause_test_continue.state(["!disabled"])
+        else:
+            self.btn_pause_test_continue.state(["disabled"])
+        if can_cancel:
+            self.btn_pause_test_cancel.state(["!disabled"])
+        else:
+            self.btn_pause_test_cancel.state(["disabled"])
+
+    def _refresh_pause_test_buttons_async(self) -> None:
+        self.root.after(0, self._refresh_pause_test_buttons)
+
+    def on_pause_test_toggle(self) -> None:
+        enabled = bool(self.pause_test_enabled_var.get())
+        with self._pause_state_lock:
+            self._pause_test_enabled = enabled
+            if not enabled:
+                self._pause_cancel_requested = False
+                self._pause_waiting_context = ""
+                self._pause_waiting_since = 0.0
+                self._pause_continue_event.set()
+        if enabled:
+            self.log_control("暂停测试已开启：每个 arm motion 下发前需手动点击“继续下一步”。")
+        else:
+            self.log_control("暂停测试已关闭。")
+        self._refresh_pause_test_buttons_async()
+
+    def continue_pause_test(self) -> None:
+        with self._pause_state_lock:
+            if not self._pause_test_enabled:
+                return
+            waiting_context = self._pause_waiting_context
+            self._pause_continue_event.set()
+        if waiting_context:
+            self.log_control(f"[暂停测试] 收到继续指令，放行：{waiting_context}")
+        self._refresh_pause_test_buttons_async()
+
+    def cancel_pause_test(self) -> None:
+        with self._pause_state_lock:
+            if not self.running:
+                return
+            self._pause_cancel_requested = True
+            waiting_context = self._pause_waiting_context
+            self._pause_continue_event.set()
+        if waiting_context:
+            self.log_control(f"[暂停测试] 收到取消指令，正在取消：{waiting_context}")
+        else:
+            self.log_control("[暂停测试] 收到取消指令，当前步骤完成后将停止后续动作。")
+        self._refresh_pause_test_buttons_async()
+
+    def wait_for_pause_test_gate(self, context: str) -> None:
+        with self._pause_state_lock:
+            if self._pause_cancel_requested:
+                raise PauseTestCancelledError(f"测试已取消：{context}")
+            if not self._pause_test_enabled:
+                return
+            self._pause_waiting_context = context
+            self._pause_waiting_since = time.time()
+            self._pause_continue_event.clear()
+        self.log_control(f"[暂停测试] 已暂停：{context}。请点击“继续下一步”或“取消测试”。")
+        self._refresh_pause_test_buttons_async()
+
+        while True:
+            self._pause_continue_event.wait(timeout=0.2)
+            with self._pause_state_lock:
+                cancel_requested = self._pause_cancel_requested
+                enabled = self._pause_test_enabled
+                if cancel_requested:
+                    self._pause_waiting_context = ""
+                    self._pause_waiting_since = 0.0
+                    self._pause_continue_event.clear()
+                    self._refresh_pause_test_buttons_async()
+                    raise PauseTestCancelledError(f"测试已取消：{context}")
+                if not enabled:
+                    self._pause_waiting_context = ""
+                    self._pause_waiting_since = 0.0
+                    self._pause_continue_event.clear()
+                    break
+                if self._pause_continue_event.is_set():
+                    self._pause_waiting_context = ""
+                    self._pause_waiting_since = 0.0
+                    self._pause_continue_event.clear()
+                    break
+        self.log_control(f"[暂停测试] 继续执行：{context}")
+        self._refresh_pause_test_buttons_async()
+
+    def _build_runtime_status_text(self) -> str:
+        lines: list[str] = []
+        lines.append(f"刷新时间: {self._format_ts(time.time())}")
+        lines.append(f"状态文件: {self._active_run_status_file}")
+        payload: dict[str, object] = {}
+        try:
+            if self._active_run_status_file.exists():
+                with self._active_run_status_file.open("r", encoding="utf-8") as f:
+                    raw = json.load(f)
+                if isinstance(raw, dict):
+                    payload = raw
+            else:
+                payload = {"running": False, "note": "状态文件尚未生成（等待首次执行动作）"}
+        except Exception as exc:  # noqa: BLE001
+            payload = {"running": False, "note": f"读取状态文件失败: {exc}"}
+
+        running = bool(payload.get("running", False))
+        lines.append(f"running: {'YES' if running else 'NO'}")
+        if running:
+            lines.append(f"run_id: {payload.get('run_id', 'N/A')}")
+            lines.append(f"action_name: {payload.get('action_name', 'N/A')}")
+            lines.append(f"started_at: {payload.get('started_at', 'N/A')}")
+        last_run = payload.get("last_run", {})
+        if isinstance(last_run, dict) and last_run:
+            lines.append("")
+            lines.append("last_run:")
+            lines.append(f"  run_id: {last_run.get('run_id', 'N/A')}")
+            lines.append(f"  action_name: {last_run.get('action_name', 'N/A')}")
+            lines.append(f"  status: {last_run.get('status', 'N/A')}")
+            lines.append(f"  elapsed_sec: {last_run.get('elapsed_sec', 'N/A')}")
+            lines.append(f"  finished_at: {last_run.get('finished_at', 'N/A')}")
+            err = str(last_run.get("error", "")).strip()
+            if err:
+                lines.append(f"  error: {err}")
+        note = str(payload.get("note", "")).strip()
+        if note:
+            lines.append("")
+            lines.append(f"note: {note}")
+        lines.append("")
+        lines.append(f"pause_test: {self.pause_test_status_var.get()}")
+        return "\n".join(lines)
+
+    def _poll_runtime_status_panel(self) -> None:
+        if hasattr(self, "runtime_status_text"):
+            text = self._build_runtime_status_text()
+            self.runtime_status_text.configure(state="normal")
+            self.runtime_status_text.delete("1.0", "end")
+            self.runtime_status_text.insert("end", text)
+            self.runtime_status_text.configure(state="disabled")
+        self.root.after(500, self._poll_runtime_status_panel)
 
     def _build_init_tab(self) -> None:
         frm = self.tab_init
@@ -437,9 +795,28 @@ class MainApp:
         )
         arm_scale_slider.grid(row=3, column=1, sticky="w")
         ttk.Label(cfg, textvariable=self.arm_velocity_scale_var, width=6).grid(row=3, column=2, sticky="w")
+        ttk.Label(cfg, text="arm_motion_settle_sec").grid(row=4, column=0, sticky="w")
+        ttk.Entry(cfg, textvariable=self.arm_motion_settle_sec_var, width=20).grid(row=4, column=1, sticky="w")
+        ttk.Label(cfg, text="home_hand_settle_sec").grid(row=5, column=0, sticky="w")
+        ttk.Entry(cfg, textvariable=self.home_hand_settle_sec_var, width=20).grid(row=5, column=1, sticky="w")
         ttk.Checkbutton(cfg, text="初始化后自动启动franka_bringup", variable=self.auto_start_franka_var).grid(
-            row=4, column=0, columnspan=3, sticky="w"
+            row=6, column=0, columnspan=3, sticky="w"
         )
+
+        pause_box = ttk.LabelFrame(frm, text="暂停测试（用于排查多任务串行冲突）")
+        pause_box.grid(row=5, column=0, columnspan=4, sticky="ew", padx=4, pady=6)
+        ttk.Checkbutton(
+            pause_box,
+            text="开启暂停测试（每个 arm motion 前暂停）",
+            variable=self.pause_test_enabled_var,
+            command=self.on_pause_test_toggle,
+        ).pack(side="left", padx=4, pady=4)
+        self.btn_pause_test_continue = ttk.Button(pause_box, text="继续下一步", command=self.continue_pause_test)
+        self.btn_pause_test_continue.pack(side="left", padx=4)
+        self.btn_pause_test_cancel = ttk.Button(pause_box, text="取消测试", command=self.cancel_pause_test)
+        self.btn_pause_test_cancel.pack(side="left", padx=4)
+        ttk.Label(pause_box, textvariable=self.pause_test_status_var).pack(side="left", padx=8)
+        self._refresh_pause_test_buttons()
 
     def _build_waypoint_tab(self) -> None:
         left = ttk.Frame(self.tab_waypoint)
@@ -460,8 +837,10 @@ class MainApp:
         ttk.Button(top, text="重命名", command=self.rename_waypoint).pack(side="left", padx=2)
         ttk.Button(top, text="另存为", command=self.saveas_waypoint).pack(side="left", padx=2)
         ttk.Button(top, text="设为初始位置", command=self.set_home_pose).pack(side="left", padx=2)
-        ttk.Button(top, text="移动到当前点位", command=self.move_to_selected_waypoint).pack(side="left", padx=2)
-        ttk.Button(top, text="回到初始位置", command=self.go_home_now).pack(side="left", padx=2)
+        self.btn_move_to_waypoint = ttk.Button(top, text="移动到当前点位", command=self.move_to_selected_waypoint)
+        self.btn_move_to_waypoint.pack(side="left", padx=2)
+        self.btn_go_home = ttk.Button(top, text="回到初始位置", command=self.go_home_now)
+        self.btn_go_home.pack(side="left", padx=2)
         ttk.Label(right, text="备注").pack(anchor="w")
         ttk.Entry(right, textvariable=self.task_note_var, width=60).pack(fill="x")
         self.waypoint_detail = Text(right, height=16)
@@ -492,7 +871,9 @@ class MainApp:
         ttk.Button(row, text="上移", command=lambda: self.move_task_step(-1)).pack(side="left")
         ttk.Button(row, text="下移", command=lambda: self.move_task_step(1)).pack(side="left")
         ttk.Button(row, text="保存任务", command=self.save_task).pack(side="left")
-        ttk.Button(row, text="执行该任务", command=self.run_task).pack(side="left")
+        self.btn_run_task = ttk.Button(row, text="执行该任务", command=self.run_task)
+        self.btn_run_task.pack(side="left")
+        self._register_conflict_action_button(self.btn_run_task)
 
         ttk.Label(right, text="步骤参数").pack(anchor="w")
         ttk.Label(right, text="停留(s)").pack(anchor="w")
@@ -524,7 +905,9 @@ class MainApp:
         ttk.Button(btn, text="上移", command=lambda: self.move_plan_task(-1)).pack(side="left")
         ttk.Button(btn, text="下移", command=lambda: self.move_plan_task(1)).pack(side="left")
         ttk.Button(btn, text="保存计划", command=self.save_plan).pack(side="left")
-        ttk.Button(btn, text="执行该计划", command=self.run_plan).pack(side="left")
+        self.btn_run_plan = ttk.Button(btn, text="执行该计划", command=self.run_plan)
+        self.btn_run_plan.pack(side="left")
+        self._register_conflict_action_button(self.btn_run_plan)
 
         ttk.Label(right, text="计划名称").pack(anchor="w")
         self.plan_name_var = StringVar(value="plan_1")
@@ -548,6 +931,11 @@ class MainApp:
         self.log_text_control.pack(fill="both", expand=True)
         self.log_text_arm.pack(fill="both", expand=True)
         self.log_text_hand.pack(fill="both", expand=True)
+        runtime_box = ttk.LabelFrame(self.tab_log, text="任务运行状态（内置 active motion 监控）")
+        runtime_box.pack(fill="x", padx=4, pady=(0, 4))
+        self.runtime_status_text = Text(runtime_box, height=10)
+        self.runtime_status_text.pack(fill="x", expand=False)
+        self.runtime_status_text.configure(state="disabled")
 
     def _build_hand_tab(self) -> None:
         frm = self.tab_hand
@@ -555,6 +943,7 @@ class MainApp:
         top.pack(fill="x", padx=8, pady=6)
         ttk.Label(top, text="手控模式: 0-4096 位置值, 滑条即时发送").pack(side="left")
         ttk.Button(top, text="初始化手", command=self.init_raw_hand).pack(side="left", padx=8)
+        ttk.Button(top, text="同步当前位置到滑条", command=self.sync_hand_positions).pack(side="left", padx=4)
         ttk.Button(top, text="关闭手控连接", command=self.close_raw_hand).pack(side="left", padx=4)
         ttk.Checkbutton(top, text="实时监控(0.5s)", variable=self.hand_monitoring_var, command=self.toggle_hand_monitor).pack(
             side="left", padx=8
@@ -726,7 +1115,7 @@ class MainApp:
         self.waypoint_detail.insert("end", yaml_pretty(raw))
 
     def record_waypoint(self) -> None:
-        if not self.ensure_hand_ready_or_warn("记录当前点位"):
+        if not self.raw_hand_connected and not self.ensure_hand_ready_or_warn("记录当前点位"):
             return
         save_path = choose_save_file_native(
             self.waypoints_dir(),
@@ -736,7 +1125,7 @@ class MainApp:
         if not save_path:
             return
         name = Path(save_path).stem
-        self._run_async(lambda: self._record_waypoint_worker(name))
+        self._run_async(lambda: self._record_waypoint_worker(name), action_name=f"record_waypoint:{name}")
 
     def _record_waypoint_worker(self, name: str) -> None:
         note = self.task_note_var.get().strip()
@@ -799,10 +1188,10 @@ class MainApp:
             self.popup_info("导入完成", f"点位导入完成：新增 {imported} 个，跳过 {skipped} 个。", key="import_waypoint_ok")
 
     def set_home_pose(self) -> None:
-        if not self.ensure_hand_ready_or_warn("设为初始位置"):
+        if not self.raw_hand_connected and not self.ensure_hand_ready_or_warn("设为初始位置"):
             return
         self.log("开始设置初始位置...")
-        self._run_async(self._set_home_worker)
+        self._run_async(self._set_home_worker, action_name="set_home_pose")
 
     def _set_home_worker(self) -> None:
         path = self.executor.set_home_from_current()
@@ -814,23 +1203,25 @@ class MainApp:
         if not name:
             messagebox.showwarning("提示", "请先选择一个点位")
             return
-        if not self.ensure_hand_ready_or_warn("移动到当前点位"):
+        if not self.raw_hand_connected and not self.ensure_hand_ready_or_warn("移动到当前点位"):
             return
         self._run_async(
             lambda: self.executor.move_to_waypoint(name),
             success_title="执行完成",
             success_message=f"已移动到点位：{name}",
             success_key=f"move_wp_ok_{name}",
+            action_name=f"move_to_waypoint:{name}",
         )
 
     def go_home_now(self) -> None:
-        if not self.ensure_hand_ready_or_warn("回到初始位置"):
+        if not self.raw_hand_connected and not self.ensure_hand_ready_or_warn("回到初始位置"):
             return
         self._run_async(
             self.executor.go_home_now,
             success_title="执行完成",
             success_message="机械臂和手已回到初始位置。",
             success_key="go_home_ok",
+            action_name="go_home_now",
         )
 
     def refresh_tasks(self) -> None:
@@ -891,16 +1282,21 @@ class MainApp:
         if not task_file:
             messagebox.showwarning("提示", "请先导入或新建任务文件")
             return
-        picked = choose_file_native(self.waypoints_dir(), [("YAML", "*.yaml")])
-        if not picked:
+        picked_files = choose_files_native(self.waypoints_dir(), [("YAML", "*.yaml")])
+        if not picked_files:
             return
-        wp = Path(picked).stem
         raw = read_yaml(Path(task_file))
-        raw.setdefault("steps", []).append(
-            {"waypoint": wp, "hold_sec": float(self.task_hold_sec_var.get()), "hand_reset_enabled": bool(self.task_step_hand_reset_var.get())}
-        )
+        steps = raw.setdefault("steps", [])
+        hold_sec = float(self.task_hold_sec_var.get())
+        hand_reset_enabled = bool(self.task_step_hand_reset_var.get())
+        for picked in picked_files:
+            wp = Path(picked).stem
+            steps.append(
+                {"waypoint": wp, "hold_sec": hold_sec, "hand_reset_enabled": hand_reset_enabled}
+            )
         write_yaml(Path(task_file), raw)
         self.load_selected_task()
+        self.popup_info("添加成功", f"已添加 {len(picked_files)} 个点位到任务。", key="add_waypoints_to_task_ok")
 
     def remove_task_step(self) -> None:
         task_file = self.current_task_file_var.get().strip()
@@ -951,13 +1347,13 @@ class MainApp:
         if not task_file:
             messagebox.showwarning("提示", "请先导入或新建任务文件")
             return
-        if not self.ensure_hand_ready_or_warn("执行任务"):
-            return
-        if self.raw_hand is not None:
+        if self.raw_hand_connected:
             messagebox.showwarning(
                 "提示",
                 "当前已启用手动手控(0-4096)连接。请先关闭手动手控连接后再执行任务，避免CAN总线冲突。",
             )
+            return
+        if not self.ensure_hand_ready_or_warn("执行任务"):
             return
         task_name = Path(task_file).stem
         self._run_async(
@@ -965,6 +1361,7 @@ class MainApp:
             success_title="任务执行完成",
             success_message=f"任务 `{task_name}` 已执行完成。",
             success_key=f"run_task_ok_{task_name}",
+            action_name=f"run_task:{task_name}",
         )
 
     def create_plan(self) -> None:
@@ -1027,13 +1424,16 @@ class MainApp:
         if not plan_file:
             messagebox.showwarning("提示", "请先导入或新建计划文件")
             return
-        picked = choose_file_native(self.tasks_dir(), [("YAML", "*.yaml")])
-        if not picked:
+        picked_files = choose_files_native(self.tasks_dir(), [("YAML", "*.yaml")])
+        if not picked_files:
             return
         raw = read_yaml(Path(plan_file))
-        raw.setdefault("tasks", []).append(Path(picked).stem)
+        tasks = raw.setdefault("tasks", [])
+        for picked in picked_files:
+            tasks.append(Path(picked).stem)
         write_yaml(Path(plan_file), raw)
         self.load_plan()
+        self.popup_info("添加成功", f"已添加 {len(picked_files)} 个任务到计划。", key="add_tasks_to_plan_ok")
 
     def remove_task_from_plan(self) -> None:
         plan_file = self.current_plan_file_var.get().strip()
@@ -1061,7 +1461,7 @@ class MainApp:
         self.load_plan()
         self.plan_task_list.selection_set(j)
 
-    def save_plan(self) -> None:
+    def save_plan(self, popup: bool = True) -> None:
         plan_file = self.current_plan_file_var.get().strip()
         if not plan_file:
             return
@@ -1074,47 +1474,126 @@ class MainApp:
         raw["end_reset_enabled"] = bool(self.plan_end_reset_var.get())
         write_yaml(path, raw)
         self.log(f"计划已保存: {path}")
-        self.popup_info("保存成功", f"计划已保存：\n{path}", key=f"save_plan_{path}")
+        if popup:
+            self.popup_info("保存成功", f"计划已保存：\n{path}", key=f"save_plan_{path}")
 
     def run_plan(self) -> None:
         plan_file = self.current_plan_file_var.get().strip()
         if not plan_file:
             messagebox.showwarning("提示", "请先导入或新建计划文件")
             return
-        if not self.ensure_hand_ready_or_warn("执行计划"):
-            return
-        if self.raw_hand is not None:
+        if self.raw_hand_connected:
             messagebox.showwarning(
                 "提示",
                 "当前已启用手动手控(0-4096)连接。请先关闭手动手控连接后再执行计划，避免CAN总线冲突。",
             )
             return
-        self.save_plan()
+        if not self.ensure_hand_ready_or_warn("执行计划"):
+            return
+        self.save_plan(popup=False)
         plan_name = Path(plan_file).stem
         self._run_async(
             lambda: self.executor.execute_plan(plan_name),
             success_title="计划执行完成",
             success_message=f"计划 `{plan_name}` 已执行完成。",
             success_key=f"run_plan_ok_{plan_name}",
+            action_name=f"run_plan:{plan_name}",
         )
 
-    def _run_async(self, fn, success_title: str | None = None, success_message: str | None = None, success_key: str | None = None) -> None:
-        if self.running:
-            messagebox.showwarning("提示", "已有任务在运行，请稍后")
-            return
+    def _run_async(
+        self,
+        fn,
+        success_title: str | None = None,
+        success_message: str | None = None,
+        success_key: str | None = None,
+        action_name: str | None = None,
+    ) -> None:
+        label = (action_name or getattr(fn, "__name__", "anonymous")).strip() or "anonymous"
+        started_epoch = time.time()
+        with self._run_state_lock:
+            if self.running:
+                current_run_id = "N/A"
+                current_action = "unknown"
+                if isinstance(self._active_run, dict):
+                    current_run_id = str(self._active_run.get("run_id", "N/A"))
+                    current_action = str(self._active_run.get("action_name", "unknown"))
+                self.log_control(f"拒绝新任务 `{label}`：已有任务运行中 run_id={current_run_id}, action={current_action}")
+                messagebox.showwarning("提示", "已有任务在运行，请稍后")
+                return
+            self._run_seq += 1
+            run_id = f"run-{int(started_epoch * 1000)}-{self._run_seq}"
+            self.running = True
+            with self._pause_state_lock:
+                self._pause_cancel_requested = False
+                self._pause_waiting_context = ""
+                self._pause_waiting_since = 0.0
+                self._pause_continue_event.clear()
+            self._active_run = {
+                "run_id": run_id,
+                "action_name": label,
+                "started_at": self._format_ts(started_epoch),
+                "started_epoch": started_epoch,
+            }
+            self._write_active_run_status(
+                {
+                    "running": True,
+                    "run_id": run_id,
+                    "action_name": label,
+                    "started_at": self._format_ts(started_epoch),
+                    "started_epoch": started_epoch,
+                }
+            )
+        self._refresh_pause_test_buttons_async()
+        self.log_control(f"[RUN START] run_id={run_id}, action={label}")
 
         def worker() -> None:
-            self.running = True
+            status = "succeeded"
+            error_msg = ""
             try:
                 fn()
                 if success_title and success_message:
                     self.popup_info(success_title, success_message, key=success_key)
-            except Exception as exc:  # noqa: BLE001
+            except PauseTestCancelledError as exc:
+                status = "cancelled"
                 msg = str(exc)
+                error_msg = msg
+                self.log_control(msg)
+                self.popup_info("执行已取消", msg, key="exec_cancelled")
+            except Exception as exc:  # noqa: BLE001
+                status = "failed"
+                msg = str(exc)
+                error_msg = msg
                 self.log(f"ERROR: {msg}")
                 self.popup_error("执行失败", msg, key="exec_failed")
             finally:
-                self.running = False
+                finished_epoch = time.time()
+                elapsed_sec = max(0.0, finished_epoch - started_epoch)
+                with self._run_state_lock:
+                    self.running = False
+                    self._active_run = None
+                    with self._pause_state_lock:
+                        self._pause_cancel_requested = False
+                        self._pause_waiting_context = ""
+                        self._pause_waiting_since = 0.0
+                        self._pause_continue_event.set()
+                    self._write_active_run_status(
+                        {
+                            "running": False,
+                            "last_run": {
+                                "run_id": run_id,
+                                "action_name": label,
+                                "status": status,
+                                "started_at": self._format_ts(started_epoch),
+                                "finished_at": self._format_ts(finished_epoch),
+                                "elapsed_sec": round(elapsed_sec, 3),
+                                "error": error_msg,
+                            },
+                        }
+                    )
+                self._refresh_pause_test_buttons_async()
+                self.log_control(
+                    f"[RUN END] run_id={run_id}, action={label}, status={status}, elapsed={elapsed_sec:.2f}s"
+                )
 
         threading.Thread(target=worker, daemon=True).start()
 
@@ -1139,7 +1618,7 @@ class MainApp:
             return False
 
     def init_raw_hand(self) -> None:
-        self._run_async(self._init_raw_hand_worker)
+        self._run_async(self._init_raw_hand_worker, action_name="init_raw_hand")
 
     @staticmethod
     def _is_hand_send_failed(ret: object) -> bool:
@@ -1179,6 +1658,7 @@ class MainApp:
             success_title="检测结果",
             success_message="手状态正常：通信可用，关节反馈有效。",
             success_key="check_raw_hand_ok",
+            action_name="check_raw_hand_status",
         )
 
     def _check_raw_hand_status_worker(self) -> None:
@@ -1204,8 +1684,30 @@ class MainApp:
                 "请确认 raw_hand_cfg_path 路径或安装包目录是否正确。"
             )
         hand_type = EHandType.LEFT if self.hand_side_var.get().strip().lower() == "left" else EHandType.RIGHT
+        self.executor.reset_hand_client()
         self.raw_hand = AgibotHandO10.create_hand(cfg_path=self.raw_hand_cfg_path, hand_type=hand_type)
+        self._refresh_conflict_action_buttons_async()
         return self.raw_hand
+
+    def _get_raw_hand_solver(self):
+        if OmniHand2025Solver is None:
+            raise RuntimeError("OmniHand2025Solver 不可用，无法将0-4096目标值转换为关节弧度")
+        is_left = self.hand_side_var.get().strip().lower() == "left"
+        if self._raw_hand_solver is None or self._raw_hand_solver_is_left != is_left:
+            self._raw_hand_solver = OmniHand2025Solver(hand_type=is_left)
+            self._raw_hand_solver_is_left = is_left
+        return self._raw_hand_solver
+
+    def _get_raw_hand_target_angles_from_sliders(self) -> list[float]:
+        target_positions = [int(v.get()) for v in self.hand_pos_vars[:10]]
+        solver = self._get_raw_hand_solver()
+        try:
+            target_angles = solver.actuator_input_to_active_joint_pos(target_positions)
+        except Exception as exc:  # noqa: BLE001
+            raise RuntimeError(f"手目标值转换失败: {exc}") from exc
+        checked = self._validate_hand_feedback(target_angles, min_len=10)
+        self.log_hand(f"点位记录使用手目标角度: actuator={target_positions} -> rad={checked[:3]} ...")
+        return checked
 
     def _init_raw_hand_worker(self) -> None:
         try:
@@ -1220,6 +1722,7 @@ class MainApp:
             feedback = hand.get_all_active_joint_angles()
             self._validate_hand_feedback(feedback, min_len=10)
             self.root.after(0, lambda: [self.hand_pos_vars[i].set(init_positions[i]) for i in range(10)])
+            self.raw_hand_connected = True
             self.log_hand("手初始化完成(0-4096模式)")
             self.popup_info("手初始化成功", "手初始化完成（0-4096模式）。", key="raw_hand_init_ok")
         except Exception as exc:  # noqa: BLE001
@@ -1244,6 +1747,9 @@ class MainApp:
         except Exception as exc:  # noqa: BLE001
             self.log_hand(f"释放手控连接失败: {exc}")
         self.raw_hand = None
+        self.raw_hand_connected = False
+        self.executor.reset_hand_client()
+        self._refresh_conflict_action_buttons_async()
 
     def close_raw_hand(self) -> None:
         self.hand_monitoring_var.set(False)
@@ -1287,11 +1793,45 @@ class MainApp:
             self.hand_monitor_text.insert("end", text)
             self.hand_monitor_text.see("end")
 
+    def sync_hand_positions(self) -> None:
+        if not self.raw_hand_connected:
+            messagebox.showwarning("提示", "请先点击“初始化手”，建立手控连接后再同步。")
+            return
+        self._run_async(
+            self._sync_hand_positions_worker,
+            success_title="同步成功",
+            success_message="已将滑条同步为当前手关节位置。",
+            success_key="sync_hand_positions_ok",
+            action_name="sync_hand_positions",
+        )
+
+    def _sync_hand_positions_worker(self) -> None:
+        hand = self._ensure_raw_hand()
+        positions = hand.get_all_joint_positions()
+        if not isinstance(positions, (list, tuple)) or len(positions) < 10:
+            raise RuntimeError(
+                f"读取关节位置失败: 期望至少10个位置，实际 {len(positions) if isinstance(positions, (list, tuple)) else 'N/A'}"
+            )
+        vals = [max(0, min(4096, int(v))) for v in positions[:10]]
+
+        def apply_vals() -> None:
+            self._hand_updating_from_device = True
+            try:
+                for i, v in enumerate(vals):
+                    self.hand_pos_vars[i].set(v)
+            finally:
+                self._hand_updating_from_device = False
+
+        self.root.after(0, apply_vals)
+        self.log_hand(f"已同步滑条到当前位置: {vals}")
+
     def on_hand_pos_slider_change(self, idx: int) -> None:
         if self._hand_updating_from_device:
             return
+        if not self.raw_hand_connected or self.raw_hand is None:
+            return
         try:
-            hand = self._ensure_raw_hand()
+            hand = self.raw_hand
             pos = int(self.hand_pos_vars[idx].get())
             ret = hand.set_joint_position(idx + 1, pos)
             if self._is_hand_send_failed(ret):

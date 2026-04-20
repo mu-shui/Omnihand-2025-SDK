@@ -1,0 +1,6 @@
+name: "\u63D0\u62C9\u529B\u6D4B\u8BD5"
+tasks:
+- "\u98DF\u6307\u63D0\u62C9\u529B"
+- "\u65E0\u540D\u6307\u63D0\u62C9\u529B"
+task_reset_enabled: true
+end_reset_enabled: true

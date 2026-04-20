@@ -1,0 +1,19 @@
+{
+  "last_run": {
+    "action_name": "move_to_waypoint:中指提拉力5",
+    "elapsed_sec": 1.011,
+    "error": "PTPMotion failed (status=6): libfranka robot: Attempted to start multiple motions!",
+    "finished_at": "2026-04-20 18:11:58",
+    "run_id": "run-1776679917298-3",
+    "started_at": "2026-04-20 18:11:57",
+    "status": "failed"
+  },
+  "pause_test": {
+    "cancel_requested": false,
+    "enabled": false,
+    "waiting_context": "",
+    "waiting_since": ""
+  },
+  "running": false,
+  "updated_at": "2026-04-20 18:11:58"
+}

@@ -1,0 +1,23 @@
+name: "\u98DF\u6307\u63D0\u62C9\u529B"
+steps:
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD51"
+  hold_sec: 1.0
+  hand_reset_enabled: false
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD52"
+  hold_sec: 1.0
+  hand_reset_enabled: false
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD53"
+  hold_sec: 1.0
+  hand_reset_enabled: false
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD54"
+  hold_sec: 3.0
+  hand_reset_enabled: false
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD55"
+  hold_sec: 1.0
+  hand_reset_enabled: false
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD56"
+  hold_sec: 1.0
+  hand_reset_enabled: false
+- waypoint: "\u98DF\u6307\u63D0\u62C9\u529B\u6D4B\u8BD57"
+  hold_sec: 1.0
+  hand_reset_enabled: false

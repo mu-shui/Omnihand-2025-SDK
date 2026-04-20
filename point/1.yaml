@@ -1,0 +1,20 @@
+name: '1'
+arm_joints:
+- 0.0
+- 0.0
+- 0.0
+- -1.59695
+- 0.0
+- 2.5307
+- 0.0
+hand_joints: []
+arm_max_vel:
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+goal_tolerance: 0.01
+hand_timeout: 5.0

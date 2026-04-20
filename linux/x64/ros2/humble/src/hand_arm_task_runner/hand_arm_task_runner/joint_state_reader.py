@@ -18,8 +18,10 @@ class JointStateReader:
         self._last_msg = msg
 
     def get_arm_joints(self, timeout_sec: float = 2.0) -> list[float]:
-        deadline = time.time() + timeout_sec
-        while rclpy.ok() and time.time() < deadline:
+        # 强制等待“本次调用之后”的新消息，避免读取上一次缓存导致点位记录不一致。
+        self._last_msg = None
+        deadline = time.monotonic() + timeout_sec
+        while rclpy.ok() and time.monotonic() < deadline:
             if self._last_msg is not None and len(self._last_msg.position) >= self._arm_dof:
                 return [float(v) for v in self._last_msg.position[: self._arm_dof]]
             rclpy.spin_once(self._node, timeout_sec=0.05)
