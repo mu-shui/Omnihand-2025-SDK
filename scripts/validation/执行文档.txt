@@ -1,0 +1,21 @@
+cd ~/文档/Omnihand-2025-SDK-dev-release/scripts/validation
+python3 l2_1_2_comm_frequency_packet_loss.py --link canfd --hz 500 --duration 5
+
+拇指：1, 2, 3
+食指：4, 5
+中指：6
+无名指：7, 8
+小指：9, 10
+python3 l2_2_1_joint_sweep_0_4095_check.py --device zlgcan
+cd ~/文档/Omnihand-2025-SDK-dev-release/scripts/validation
+python3 l2_2_1_joint_sweep_0_4095_check.py --device zlgcan --mode single --joint-index 4 --step 16 --hand left
+python3 l2_2_1_joint_sweep_0_4095_check.py --device zlgcan --mode single --joint-index 5 --step 16 --hand left
+
+拇指（1、2、3）同理：
+python3 l2_2_1_joint_sweep_0_4095_check.py --device zlgcan --mode single --joint-index 1 --step 16 --hand left
+python3 l2_2_1_joint_sweep_0_4095_check.py --device zlgcan --mode single --joint-index 2 --step 16 --hand left
+python3 l2_2_1_joint_sweep_0_4095_check.py --device zlgcan --mode single --joint-index 3 --step 16 --hand left
+
+python3 l2_4_1_full_sensor_bandwidth_cpu.py --product o10
+python3 l2_5_0_joint_feedback_frequency.py --product o10 -o joint_ts.csv
+python3 l2_5_1_sensor_feedback_frequency.py --product o10 -o tactile_ts.csv

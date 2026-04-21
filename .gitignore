@@ -1,0 +1,10 @@
+# Build and IDE
+.github/
+.vscode/
+.cache/
+.marscode/
+.idea/
+_deps/
+build/
+cmake-build*/
+compile_commands.json
