@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2025, Agibot Co., Ltd.
-# L2-5-1：通过 CAN 周期读取触觉数据，统计采样间隔与“有效数据变化间隔”。
+# L2-5-1 扩展：以最大速率读取触觉数据，按“调用返回时刻”记录 elapsed_ms。
 
 import argparse
 import csv
@@ -254,7 +254,7 @@ def _is_number(value):
 
 
 def main():
-    p = argparse.ArgumentParser(description="L2-5-1 触觉有效刷新频率统计（CAN）")
+    p = argparse.ArgumentParser(description="L2-5-1 触觉反馈最大速率采样（返回时刻打点）")
     p.add_argument("--product", choices=["o10", "o12"], default="o10")
     p.add_argument("--hand", choices=["left", "right"], default="left")
     p.add_argument("--hand-device-id", type=int, default=1)
@@ -263,17 +263,15 @@ def main():
     p.add_argument("--can-interface", default="can0")
     p.add_argument("--link", choices=["zlgcan", "socketcan"], default="zlgcan")
     p.add_argument("--duration", type=float, default=10.0, help="采样持续时长（秒）")
-    p.add_argument("--tactile-hz", type=float, default=100.0, help="触觉读取目标频率（Hz）")
     p.add_argument("--request-interval-ms", type=int, default=0, help="SDK 请求最小间隔（ms）")
     p.add_argument("--change-threshold", type=int, default=0, help="有效变化阈值（abs(delta)>=阈值）")
     p.add_argument("--log-interval", type=float, default=1.0, help="实时日志输出间隔（秒）")
-    p.add_argument("-o", "--output", default="l2_5_1_sensor_feedback_frequency.csv")
+    p.add_argument("-o", "--output", default="l2_5_1_sensor_feedback_maxrate.csv")
     args = p.parse_args()
 
     hand = connect_hand(args)
     hand.set_request_interval(max(0, args.request_interval_ms))
 
-    period = 1.0 / max(1.0, args.tactile_hz)
     t0 = time.perf_counter()
     last_log = t0
 
@@ -302,23 +300,22 @@ def main():
         writer.writeheader()
 
         while time.perf_counter() - t0 < args.duration:
-            loop_start = time.perf_counter()
-            elapsed_ms = (loop_start - t0) * 1000.0
-            sample_ts.append(loop_start)
-
             row = {k: "" for k in csv_fields}
-            row["elapsed_ms"] = f"{elapsed_ms:.3f}"
-
             changed_regions = []
             err = ""
             status = "ok"
             region_sums = {}
 
             try:
+                # 先执行 SDK 调用，再取时间戳，确保 elapsed_ms 对齐“调用返回时刻”。
                 if args.product == "o10":
-                    sample_row, issues, region_sums = _collect_o10(hand, elapsed_ms)
+                    sample_row, issues, region_sums = _collect_o10(hand, 0.0)
                 else:
-                    sample_row, issues, region_sums = _collect_o12(hand, elapsed_ms)
+                    sample_row, issues, region_sums = _collect_o12(hand, 0.0)
+                sample_time = time.perf_counter()
+                elapsed_ms = (sample_time - t0) * 1000.0
+                sample_ts.append(sample_time)
+                sample_row["elapsed_ms"] = f"{elapsed_ms:.3f}"
                 row.update(sample_row)
                 if issues > 0:
                     status = "invalid"
@@ -326,6 +323,9 @@ def main():
                 else:
                     valid_samples += 1
             except Exception as e:
+                sample_time = time.perf_counter()
+                elapsed_ms = (sample_time - t0) * 1000.0
+                sample_ts.append(sample_time)
                 status = "error"
                 err = repr(e)
                 exception_count += 1
@@ -353,7 +353,7 @@ def main():
                             changed_regions.append(region_name)
                     if changed_regions:
                         is_effective = 1
-                        effective_ts.append(loop_start)
+                        effective_ts.append(sample_time)
                 prev_region_sums = current_region_sums
 
                 total_sum = row.get("total_sum", "")
@@ -377,9 +377,6 @@ def main():
                     f"data_loss={data_loss_events} effective={len(effective_ts)} avg_sample_hz={avg_sample_hz:.1f}"
                 )
                 last_log = now
-
-            spent = time.perf_counter() - loop_start
-            time.sleep(max(0.0, period - spent))
 
     sample_dt = [sample_ts[i] - sample_ts[i - 1] for i in range(1, len(sample_ts))]
     effective_dt = [effective_ts[i] - effective_ts[i - 1] for i in range(1, len(effective_ts))]
